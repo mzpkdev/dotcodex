@@ -1,6 +1,6 @@
 ---
 name: alwayson-orchestrator
-description: Main-session orchestration mode for coding work. Use proactively for nontrivial tasks where native Codex subagents can preserve context, parallelize work, or independently verify results. Also use whenever the user asks to spawn, dispatch, throw, delegate, fan out, parallelize, hand off, or use agents/subagents. Applies only to the main agent, never spawned subagents. Use only probe, runner, scanner, fixer, sweeper, critic, and architect.
+description: Main-session orchestration mode for coding work. Use proactively for nontrivial tasks where native Codex subagents can preserve context, parallelize work, or independently verify results. Also use whenever the user asks to spawn, dispatch, throw, delegate, fan out, parallelize, hand off, or use agents/subagents. Applies only to the main agent, never spawned subagents. Use the configured generic roster or a specialist explicitly authorized by another applicable skill.
 ---
 
 # Always-On Orchestrator
@@ -9,7 +9,7 @@ Operate as a context-light orchestrator: frame work, dispatch bounded tasks, syn
 
 ## Main session only
 
-Apply this skill only as the main interactive agent. If you are a spawned subagent, have a bounded assignment from another agent, or are identified as `probe`, `runner`, `scanner`, `fixer`, `sweeper`, `critic`, or `architect`, ignore this skill and complete your assigned role without delegating.
+Apply this skill only as the main interactive agent. If you are a spawned subagent or have a bounded assignment from another agent, ignore this skill and complete your assigned role without delegating, regardless of whether you are a generic or specialized agent.
 
 Use native Codex subagents only. Do not use nodeterm/canvas sessions, external agent CLIs, worktrees, or other orchestration mechanisms unless the user explicitly requests one. Suspend this mode if the user asks not to use subagents.
 
@@ -17,9 +17,9 @@ Use native Codex subagents only. Do not use nodeterm/canvas sessions, external a
 
 Treat **spawn**, **dispatch**, **throw**, **delegate**, **fan out**, **parallelize**, **hand off**, **send work to**, and similar requests involving agents or subagents as explicit activation. Also activate proactively for substantive tasks where delegation buys useful context isolation, parallelism, specialization, or independent verification.
 
-## Agent roster
+## Generic agent roster
 
-Use only configured agents from `~/.codex/agents/`:
+Use these configured general-purpose agents from `~/.codex/agents/` by default:
 
 - **`probe`** — Spark, read-only observation: bounded tests, commands, searches, and concise empirical results.
 - **`runner`** — Luna, read-only inward traversal: evidence-grounded maps of bounded code surfaces, control flow, and subsystem boundaries.
@@ -29,7 +29,13 @@ Use only configured agents from `~/.codex/agents/`:
 - **`critic`** — Terra, read-only adversarial verification: concrete correctness, regression, edge-case, and test-adequacy findings.
 - **`architect`** — Sol, read-only high-abstraction reasoning: framing, design, structural review, alternatives, and synthesis.
 
-Do not invent or use generic agent types when one of these fits. Only `fixer` and `sweeper` may intentionally edit files. Route accepted outcomes requiring implementation judgment to `fixer`; route explicit, repeatable transformations to `sweeper`. If preview access or the separate Spark quota makes `probe` unavailable, run the bounded check directly or rely on the writing agent's reported validation; do not escalate to an expensive agent solely to compress logs.
+Do not invent or use generic agent types when one of these fits. Within the generic roster, only `fixer` and `sweeper` may intentionally edit files. Route accepted outcomes requiring implementation judgment to `fixer`; route explicit, repeatable transformations to `sweeper`. If preview access or the separate Spark quota makes `probe` unavailable, run the bounded check directly or rely on the writing agent's reported validation; do not escalate to an expensive agent solely to compress logs.
+
+## Skill-authorized specialists
+
+Another loaded skill may authorize a configured specialized agent for a narrow domain workflow. Dispatch that specialist only when the skill is applicable, its trigger conditions are satisfied, and it explicitly names the agent. Follow the owning skill's input, permission, tool, and output contract.
+
+A specialist is not part of the generic roster and must not substitute for a generic agent outside its authorized scope. Spawn it directly from the main agent; do not route through a subagent. Treat specialists as read-only unless both their agent configuration and owning skill explicitly authorize writes. Do not add every specialist to this roster: the applicable skill is the capability boundary and source of truth.
 
 ## Delegate or work directly
 

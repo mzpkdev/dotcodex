@@ -1,0 +1,7 @@
+interface:
+  display_name: "Knowledge Links"
+  short_description: "Read structured design links without context bloat"
+  default_prompt: "Use $knowledge-links to inspect this supported project-artifact link and return compact, provider-aware context."
+
+policy:
+  allow_implicit_invocation: true
