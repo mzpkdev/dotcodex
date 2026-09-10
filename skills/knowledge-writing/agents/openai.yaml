@@ -1,0 +1,7 @@
+interface:
+  display_name: "Writing"
+  short_description: "Write clear, concise prose while preserving voice"
+  default_prompt: "Use $knowledge-writing to draft, edit, or review the requested prose while preserving facts and personality. Match the audience and genre; when they imply no register, default to a casual, friendly, concise, conversational voice."
+
+policy:
+  allow_implicit_invocation: true

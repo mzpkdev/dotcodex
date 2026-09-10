@@ -1,0 +1,7 @@
+interface:
+  display_name: "GitHub PR Management"
+  short_description: "Review and autonomously manage PRs with gh"
+  default_prompt: "Use $knowledge-github to review or manage a GitHub pull request end-to-end with gh."
+
+policy:
+  allow_implicit_invocation: true

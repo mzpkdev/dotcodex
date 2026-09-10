@@ -1,0 +1,43 @@
+# This directory is primarily live Codex runtime state. Ignore everything at
+# the root, then explicitly allow only portable, intentionally maintained files.
+/*
+
+# Repository metadata and top-level instructions.
+!/.gitignore
+!/AGENTS.md
+
+# Custom agent definitions and policy rules.
+!/agents/
+!/agents/**
+!/rules/
+!/rules/**
+
+# Custom and locally curated skills. Keep bundled system skills excluded because
+# Codex manages them and may replace them during upgrades.
+!/skills/
+!/skills/**
+/skills/.system/
+
+# Ignore common generated or sensitive files even inside the allowed trees.
+**/.DS_Store
+**/*~
+**/*.swp
+**/*.tmp
+**/.env
+**/.env.*
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.venv/
+**/node_modules/
+**/build/
+**/dist/
+
+# Deliberately excluded by the root deny rule:
+# - auth.json and installation identifiers
+# - config.toml, hooks.json, backups, and machine-local IDE settings
+# - sessions, histories, memories, logs, databases, and generated images
+# - caches, temporary files, snapshots, locks, downloaded plugins
+# - skills/.system (bundled and managed by Codex)
