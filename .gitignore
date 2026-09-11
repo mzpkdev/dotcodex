@@ -18,6 +18,15 @@
 !/skills/**
 /skills/.system/
 
+# Maintained local developer tools.
+!/tools/
+/tools/*
+!/tools/docs/
+!/tools/docs/**
+/tools/docs/.cache/
+/tools/docs/.webanvil/
+/tools/docs/coverage/
+
 # Ignore common generated or sensitive files even inside the allowed trees.
 **/.DS_Store
 **/*~

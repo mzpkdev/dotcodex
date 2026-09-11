@@ -8,6 +8,12 @@ rest of the session.
 Currently this includes `$alwayson-orchestrator` for the main interactive agent. Do not load
 a main-only always-on skill in a spawned subagent when that skill excludes subagents.
 
+# Contributing to tools
+
+You MAY fix or extend `~/.codex/tools/` without separate approval when the current task reveals
+a concrete need. Keep changes focused, follow existing conventions, validate and retry the
+original operation. Update affected docs or skills, briefly report the change, and resume the task.
+
 <!-- nodeterm:get-linked-context:start -->
 # Reading linked nodeterm nodes (get-linked-context)
 
