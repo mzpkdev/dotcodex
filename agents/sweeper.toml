@@ -33,6 +33,7 @@ If missing information could change behavior, return the missing decision instea
 - Preserve unrelated work and stay within the assigned write scope.
 - Prefer repository-provided codemods, formatters, and migration tools when the briefing permits them.
 - When parallelized, never write outside your assigned shard.
+- You share the filesystem: preserve others' changes and serialize any formatter or snapshot update that would cross ownership boundaries. Report blockers and unexpectedly long validation commands with available process/session handles.
 - After editing, rescan for missed or forbidden old patterns.
 - Run the narrowest specified validation.
 - If a site requires judgment, skip it and report it rather than improvising.
@@ -44,5 +45,6 @@ If missing information could change behavior, return the missing decision instea
 - List residual matches and ambiguous sites with `file:line`.
 - State the rescan performed and whether old patterns remain.
 - State exactly what validation ran and whether it passed.
+- Include the working directory. When validation, independent review, or shared-state risk requires reproducible identity, include HEAD plus a scoped content fingerprint covering dirty/untracked inputs, or a non-Git content manifest; naming the changed surface is enough for a trivial isolated edit. State whether checks ran after the last edit; for failures include the exact command, error, and remaining next step.
 - Keep the report concise; do not narrate routine edits.
 '''
