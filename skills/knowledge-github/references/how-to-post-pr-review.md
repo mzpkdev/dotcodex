@@ -1,9 +1,8 @@
-# GitHub CLI reference for pull-request reviews
+# GitHub CLI: pull-request reviews
 
-All commands in this reference use the `gh` CLI. `gh pr` provides dedicated pull-request
-commands; `gh api` is the same CLI's authenticated request subcommand for operations
-without a dedicated `gh pr` command, including inline comments and review-thread replies.
-The example pull-request number is `123`.
+Use `gh` throughout. `gh pr` has dedicated pull-request commands; `gh api` handles authenticated
+requests for operations without a dedicated `gh pr` command, including inline comments and review-thread
+replies. Examples use PR `123`.
 
 ## Inspect a pull request
 
@@ -16,8 +15,7 @@ gh pr diff 123
 
 ## List review threads
 
-The GraphQL `reviewThreads` connection includes thread resolution and outdated state, which
-are not available from `gh pr view --json comments`.
+GraphQL's `reviewThreads` connection includes thread resolution and outdated state; `gh pr view --json comments` does not.
 
 ```sh
 gh api graphql --paginate \
@@ -55,8 +53,8 @@ query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
 }'
 ```
 
-The thread `id` is a GraphQL node ID. A comment's `databaseId` is its REST comment ID. The
-nested `comments.pageInfo.hasNextPage` value indicates a thread with more than 100 replies.
+Thread `id` is a GraphQL node ID; comment `databaseId` is its REST comment ID. Nested
+`comments.pageInfo.hasNextPage` indicates a thread with more than 100 replies.
 
 ## List all inline review comments
 
@@ -66,8 +64,8 @@ gh api --paginate \
   --jq '.[] | {id, in_reply_to_id, path, line, side, body, user: .user.login, html_url}'
 ```
 
-A top-level review comment has no `in_reply_to_id`. A reply's `in_reply_to_id` identifies
-its top-level parent comment.
+A top-level review comment has no `in_reply_to_id`; a reply's `in_reply_to_id` identifies its
+top-level parent.
 
 ## Reply to a review comment
 
@@ -106,7 +104,7 @@ gh pr diff 123
 
 ## Create a review with inline comments
 
-The endpoint supplied to `gh api` is:
+Pass this endpoint to `gh api`:
 
 ```text
 repos/{owner}/{repo}/pulls/123/reviews
@@ -130,8 +128,8 @@ Example `review-payload.json`:
 }
 ```
 
-`RIGHT` identifies added or context lines; `LEFT` identifies deleted lines. For a line
-range, include `start_line` and `start_side` with `line` and `side`.
+`RIGHT` identifies added or context lines; `LEFT` identifies deleted lines. For a range, include
+`start_line` and `start_side` with `line` and `side`.
 
 ```sh
 gh api --method POST \

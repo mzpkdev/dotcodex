@@ -1,7 +1,7 @@
-# GitHub CLI reference for pull-request CI
+# GitHub CLI: pull-request CI
 
-The example pull-request number is `123`, head SHA is
-`0123456789abcdef0123456789abcdef01234567`, and Actions run ID is `456789`.
+Examples use PR `123`, head SHA `0123456789abcdef0123456789abcdef01234567`, and Actions
+run ID `456789`.
 
 ## Inspect PR and merge state
 
@@ -16,8 +16,7 @@ gh pr checks 123 \
   --json name,workflow,state,bucket,startedAt,completedAt,link,event
 ```
 
-The `bucket` value is one of `pass`, `fail`, `pending`, `skipping`, or `cancel`. Exit code
-`8` indicates pending checks.
+`bucket` is `pass`, `fail`, `pending`, `skipping`, or `cancel`. Exit code `8` means pending checks.
 
 ```sh
 gh pr checks 123 --required
@@ -26,9 +25,9 @@ gh pr checks 123 --watch --fail-fast --interval 300
 ```
 
 Follow the active polling loop in `../SKILL.md`. A watch returning or timing out does not establish
-task completion: refresh the full relevant PR state and continue as needed. Prefer explicit poll
-rounds when watching checks would omit expected reviews or other asynchronous work. Empty check/run
-lists immediately after a push are pending when checks are expected, not evidence of success.
+completion: refresh the relevant PR state and continue as needed. Prefer explicit rounds when watching
+checks would omit expected reviews or other asynchronous work. Empty check/run lists just after a push
+are pending when checks are expected, not success.
 
 ## Find GitHub Actions runs for a PR head
 
@@ -38,7 +37,7 @@ gh run list \
   --json databaseId,workflowName,displayTitle,status,conclusion,headSha,headBranch,event,createdAt,updatedAt,url
 ```
 
-Runs associated with a pull request are also represented by `gh pr checks 123`.
+`gh pr checks 123` also represents runs associated with the pull request.
 
 ## Inspect a failed run
 
@@ -70,8 +69,8 @@ gh run rerun 456789 --failed
 gh run rerun 456789 --job 987654
 ```
 
-The job ID accepted by `gh run rerun --job` is the `databaseId` returned by
-`gh run view --json jobs`, not the number shown in a browser job URL.
+`gh run rerun --job` accepts the `databaseId` from `gh run view --json jobs`, not the number in a
+browser job URL.
 
 Documentation: [`gh pr checks`](https://cli.github.com/manual/gh_pr_checks),
 [`gh run list`](https://cli.github.com/manual/gh_run_list),

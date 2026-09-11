@@ -1,7 +1,7 @@
 interface:
   display_name: "Do Until"
   short_description: "Iterate toward an outcome until done or genuinely stopped"
-  default_prompt: "Use $do-until to keep inspecting, acting, and verifying until the requested outcome is reached or a genuine terminal condition is found."
+  default_prompt: "Use $do-until to inspect, act, and verify until the requested outcome is reached or a genuine terminal condition is found."
 
 policy:
   allow_implicit_invocation: true

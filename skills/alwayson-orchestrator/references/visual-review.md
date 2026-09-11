@@ -1,24 +1,24 @@
 # Visual evidence and acceptance
 
-Use this workflow when the user requests implementation fidelity to a design or reference image. Scale the review to the changed component; do not turn a small UI edit into a whole-site audit.
+Verify requested fidelity to a design or reference image. Scope review to the changed component.
 
 ## Establish the reference
 
-- Confirm the target node/frame and breakpoint. An image layer, unrelated hero, or unexpected dimensions may indicate the wrong target; resolve that before using its values downstream.
-- A token definition proves a variable exists, not that it controls a visible fill. Establish its binding to the target property and active mode/variant, including opacity and compositing when relevant. Preserve unresolved bindings as hypotheses.
-- Inspect the reference's visible appearance. When structured values and the screenshot disagree, retain both observations and resolve the discrepancy rather than silently choosing one. Never invent an exact hex value from an unaided visual estimate.
-- Make reference evidence accessible to whoever will compare it: focused image artifact or directly retrievable screenshot, source node/frame identity, breakpoint/state, and outstanding uncertainties. A specialist's prose description or claim that it saw an image is not a replacement for the image.
+- Confirm the target node/frame and breakpoint; resolve unexpected layers or dimensions before using their values.
+- Establish token bindings to visible properties and active mode/variant, including relevant opacity and compositing. Definitions alone do not prove bindings; keep unresolved ones as hypotheses.
+- Inspect the reference. Retain and resolve disagreements between structured values and screenshots; do not choose silently or invent exact hex values from visual estimates.
+- Share a focused image or retrievable screenshot, source identity, breakpoint/state, and uncertainties with the reviewer. A specialist's description or inspection claim cannot replace the image.
 
 ## Compare the implementation
 
-Render the final implementation at each supplied breakpoint relevant to the changed surface. Wait for fonts and assets, establish the intended UI state, and use consistent animation timing when needed. Record the render's source state, route, viewport, and image path. Inspect a focused crop at useful resolution, plus enough surrounding context to judge placement; a scaled-down full-page image is insufficient for fine color or asset checks.
+Render the final implementation at each relevant supplied breakpoint. Wait for fonts/assets, establish UI state, and use consistent animation timing where needed. Record source state, route, viewport, and image path. Inspect a crop at useful resolution with enough context to judge placement; a reduced full-page image cannot establish fine color or asset fidelity.
 
-Compare reference and render explicitly for background treatment, foreground/logo tone and asset variant, typography, dimensions, spacing, clipping, and placement. Check responsive or motion behavior where relevant. Pixel sampling or image diffs can clarify discrepancies but are not universal requirements or proof of exact fidelity across different renderers.
+Compare background treatment, foreground/logo tone and asset variant, typography, dimensions, spacing, clipping, and placement. Check relevant responsive/motion behavior. Pixel samples or image diffs may clarify discrepancies; they are neither mandatory nor proof of fidelity across renderers.
 
-If delegating, give `critic` both images, their identities and viewports, the user outcome, and unresolved interpretations. Ask it to challenge the implementation's premises against the reference. Do not encode a disputed color as an acceptance criterion. Code and visual review may run together or separately; preserve separate outcomes.
+If delegating, give `critic` both images, identities, viewports, user outcome, and unresolved interpretations. Ask it to challenge assumptions against the reference; do not set a disputed color as an acceptance criterion. Code and visual review may run together or separately, with separate outcomes.
 
 ## Report only what passed
 
-Tests of chosen CSS values establish internal behavior; they do not independently establish the values match the reference. Distinguish implementation/checks complete, code review complete, and visual comparison complete. Name missing breakpoints, unavailable images, or unresolved discrepancies explicitly.
+CSS-value tests establish internal behavior, not reference fidelity. Report implementation/checks, code review, and visual comparison separately. Name missing breakpoints, unavailable images, and unresolved discrepancies.
 
-Do not declare the design-matching task complete while required visual comparison is missing or material discrepancies remain. Continue authorized work to obtain evidence and fix discrepancies. If evidence is inaccessible, report the specific limitation and next step. This does not introduce a mandatory user-approval gate: claim user acceptance only when the user actually gave it.
+Complete only after required visual comparison and resolution of material discrepancies. Continue authorized evidence gathering and fixes; if evidence is inaccessible, report the limitation and next step. No additional approval gate is implied; claim user acceptance only when given.

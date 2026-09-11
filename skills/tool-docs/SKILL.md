@@ -6,8 +6,8 @@ description: Use when fetching or consulting remote llms.txt indexes, llms-full.
 # Documentation CLI
 
 Use `~/.codex/tools/docs/docs` to browse HTTP(S) documentation. It supports Markdown manuals,
-link indexes, and linked HTML pages. Remote documentation SHOULD use this tool unless the task
-requires raw source, unsupported content, or another explicit retrieval method.
+link indexes, and linked HTML pages. You SHOULD use it for remote docs unless the task requires
+raw source, unsupported content, or another explicit retrieval method.
 
 ```sh
 ~/.codex/tools/docs/docs tree '<url>' --limit 30

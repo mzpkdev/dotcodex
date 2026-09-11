@@ -5,11 +5,12 @@ description: Use when developing, debugging, refactoring, or reviewing Svelte co
 
 # Svelte and SvelteKit
 
+Implement and review Svelte using current, version-compatible docs.
+
 1. Inspect package manifests, lockfiles, and nearby code for installed versions, project
    conventions, and available validation scripts.
-2. At the start of each task using this skill, you MUST fetch
-   [Svelte documentation](https://svelte.dev/docs/svelte/llms.txt) afresh before
-   framework-specific implementation or advice. For SvelteKit work, also fetch
+2. Before framework-specific work in each task, fetch
+   [Svelte documentation](https://svelte.dev/docs/svelte/llms.txt) afresh. For SvelteKit, also fetch
    [SvelteKit documentation](https://svelte.dev/docs/kit/llms.txt).
 3. Apply [tool-docs](../tool-docs/SKILL.md) to search these full manuals and read relevant
    sections, using `--refresh` on first access in the task. Preserve surrounding qualifications;

@@ -5,13 +5,14 @@ description: Use when building, styling, debugging, or reviewing Ark UI componen
 
 # Ark UI
 
+Implement and review Ark UI integrations using current docs and the project's conventions.
+
 1. Inspect package manifests, lockfiles, and nearby components for the framework, installed
    Ark UI version, existing wrappers, and styling conventions. For Svelte projects, also apply
    `knowledge-svelte`.
-2. At the start of each task using this skill, you MUST fetch the
-   [official documentation index](https://ark-ui.com/llms.txt) afresh before Ark UI-specific
-   implementation or advice. Follow its links for the project's framework; do not mix APIs or
-   examples from different framework bindings.
+2. Before Ark UI-specific work in each task, fetch the
+   [official documentation index](https://ark-ui.com/llms.txt) afresh. Follow links for the
+   project's framework; keep APIs and examples within that binding.
 3. Apply [tool-docs](../tool-docs/SKILL.md), using `--refresh` on first access to each relevant
    URL in the task. Fetch only relevant component pages and guides. For Markdown pages, use the
    index's documented endpoint and explicitly select the framework. Search the framework-specific

@@ -1,7 +1,6 @@
-# Git and GitHub CLI reference for updating a PR branch
+# Git and GitHub CLI: updating a PR branch
 
-The example pull-request number is `123`, local branch is `feature-branch`, and push remote
-is `origin`.
+Examples use PR `123`, local branch `feature-branch`, and push remote `origin`.
 
 ## Inspect the PR head identity
 
@@ -25,8 +24,8 @@ git rev-parse HEAD
 gh pr checkout 123
 ```
 
-`gh pr checkout` can fetch pull requests from forks. The resulting local branch and its
-configured remote are visible through `git branch -vv` and `git remote -v`.
+`gh pr checkout` can fetch fork PRs. Inspect the resulting local branch and its configured remote
+with `git branch -vv` and `git remote -v`.
 
 ## Inspect and commit selected changes
 
@@ -57,8 +56,8 @@ gh pr update-branch 123
 gh pr update-branch 123 --rebase
 ```
 
-The default `gh pr update-branch` behavior creates a merge commit. `--rebase` rebases the
-PR branch onto the base branch.
+By default, `gh pr update-branch` creates a merge commit; `--rebase` rebases the PR branch onto
+the base branch.
 
 ## Verify the pushed PR head
 

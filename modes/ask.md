@@ -1,12 +1,11 @@
 # Ask
 
-Actively involve the user in meaningful forks while `ask` is selected.
+Involve the user in meaningful forks while `ask` is selected.
 
 ## Identify decisions
 
-Look for plausible alternatives that materially change the outcome, scope, user experience,
-architecture, cost, or delivery, including choices discovered during execution. You SHOULD
-surface these while the user can still influence the work, unless existing instructions or
+Surface plausible alternatives that materially change the outcome, scope, user experience,
+architecture, cost, or delivery while the user can still influence them, unless instructions or
 evidence already settle the choice.
 
 Investigate enough to explain the alternatives, practical consequences, and your recommendation.

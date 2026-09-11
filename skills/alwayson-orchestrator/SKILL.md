@@ -1,25 +1,22 @@
 ---
 name: alwayson-orchestrator
-description: Main-session orchestration mode for coding work. Use proactively for nontrivial tasks where native Codex subagents can preserve context, parallelize work, or independently verify results. Also use whenever the user asks to spawn, dispatch, throw, delegate, fan out, parallelize, hand off, or use agents/subagents. Applies only to the main agent, never spawned subagents. Use the configured generic roster or a specialist explicitly authorized by another applicable skill.
+description: Main-agent orchestration for substantive coding work that benefits from context isolation, parallel work, or independent verification, and for explicit requests to delegate or use subagents. Uses native Codex agents from the configured roster or a skill-authorized specialist. Excludes spawned subagents.
 ---
 
-# Always-On Orchestrator
+# Always-on orchestrator
 
 Frame work, dispatch bounded tasks, synthesize results, and remain accountable. Consider
 delegation, but work directly when coordination costs more than the task.
 
 ## Scope and activation
 
-Apply only as the main interactive agent. Spawned subagents or agents with bounded assignments
-ignore this skill and complete their role without delegation, whether generic or specialized.
-Use native Codex subagents only: do not use nodeterm/canvas sessions, external agent CLIs,
-worktrees, or other orchestration unless the user explicitly requests one. Suspend this mode when
-the user asks not to use subagents.
+Apply only as main. Spawned or bounded agents, generic or specialized, complete their assignments
+without loading this skill or delegating. Use native Codex subagents; other orchestration, including
+nodeterm, external CLIs, and worktrees, requires an explicit user request. Suspend this mode when
+the user declines subagents.
 
-Activate for requests to **spawn**, **dispatch**, **throw**, **delegate**, **fan out**,
-**parallelize**, **hand off**, **send work to**, or similar agent/subagent work; also proactively
-when substantive work benefits from context isolation, parallelism, specialization, or independent
-verification.
+Activate for requests to spawn, dispatch, delegate, parallelize, hand off, or similar agent work;
+also when substantive work benefits from context isolation, specialization, or independent verification.
 
 ## Agents
 
@@ -35,42 +32,35 @@ Use these configured general-purpose agents from `~/.codex/agents/` by default w
 - **`architect`** — Sol, read-only high-level framing, design, structural review, alternatives, and
   synthesis.
 
-Do not invent generic types when one fits. Only `fixer` and `sweeper` intentionally edit: send
-implementation judgment to `fixer` and explicit repeatable work to `sweeper`. If preview access or
-the separate Spark quota makes `probe` unavailable, run the bounded check directly or use the
-writer's validation; do not escalate merely to compress logs.
+Use a fitting configured type. Only `fixer` and `sweeper` intentionally edit: the former owns
+implementation judgment, the latter explicit transformations. If preview access or Spark quota
+blocks `probe`, check directly or use the writer's validation; do not escalate just to compress logs.
 
-An applicable loaded skill can authorize a named specialist for its narrow workflow. Dispatch it
-only when that skill applies and its trigger is satisfied; follow its input, permission, tool, and
-output contract. Specialists are outside this roster: do not substitute one outside its scope, route
-through a subagent, or add all specialists here. Spawn from main and treat it as read-only unless its
-configuration and owning skill both authorize writes. The owning skill defines its boundary.
+A loaded skill can authorize a named specialist within its trigger, input, permission, tool, and
+output contract. Spawn specialists only from main and within that scope; keep them out of the generic
+roster. Treat them as read-only unless both their configuration and owning skill authorize writes.
 
 ## Delegate deliberately
 
-Delegate when workstreams are independent; exploration spans many files or references; external
-evidence needs synthesis; implementation has an accepted outcome; a mechanical procedure is exact;
-tests, builds, or logs may produce substantial output; or independent review materially reduces risk.
-Work directly for one small read/search/lookup, a tiny edit tightly coupled to active orchestration,
-reconciling reports or checking a disputed detail needing little context, or when briefing and reporting
-cost more than the work. For each spawn, name the uncertainty, workload, or risk reduced.
+Choose delegation when independent workstreams, broad exploration, external synthesis, accepted
+implementation work, exact mechanical changes, large validation output, or independent review justify
+the coordination cost. Handle small reads/edits, report reconciliation, and narrow disputed details
+directly when briefing would cost more. For each spawn, name the uncertainty, workload, or risk reduced.
 
-Before exploration, identify the exact answer and useful concurrent main-agent work. Do not race a
-`runner` through the same files. If a prerequisite has a short local answer, read it. Ask
-investigators for decisive early findings rather than withholding them for a complete map.
+Before exploration, identify the question and concurrent main-agent work. Read short prerequisites
+directly; do not race a `runner` through the same files. Ask for decisive early findings.
 
 ## Orchestration loop
 
 1. Retain outcome, constraints, uncertainty, risk, and decisions in the main session.
 2. Split by dependency; dispatch independent tasks together.
-3. Give each agent a self-contained objective, context, scope, non-goals, expected output, and validation duty.
-   Separate user requirements, direct evidence and its location, hypotheses, and open questions;
-   preserve uncertainty rather than promoting extracts or conclusions to requirements.
+3. Brief each agent with objective, context, scope, non-goals, output, and validation duty.
+   Distinguish user requirements, located evidence, hypotheses, and open questions; do not promote
+   uncertain extracts or conclusions to requirements.
 4. Assign one writer per file surface or shared invariant, including main. Writers share the
    filesystem and preserve others' edits. Serialize overlapping changes, formatters, snapshots, and
    validation that writes shared artifacts. Transfer ownership only after the earlier writer stops.
-5. Read every report, distinguish evidence from inference, resolve contradictions, and judge rather
-   than relay conclusions.
+5. Read every report, distinguish evidence from inference, and resolve contradictions.
 6. Reuse an agent session for narrow follow-ups where practical.
 7. Verify for risk: `probe` for objective checks, `critic` for correctness, and `architect` for
    consequential framing/design.
@@ -78,60 +68,52 @@ investigators for decisive early findings rather than withholding them for a com
 
 ## Judge findings
 
-The main agent decides across reports. A critic finding is a claim, not an implementation order; do
-not forward its list wholesale or optimize for silence. Weigh evidence, user requirements, impact and
-likelihood, affected users, scope, and fix cost, including complexity, maintenance, and regression.
-Severity and proposed remedies are advisory; seek the simplest sufficient fix.
+Judge critic claims instead of forwarding them as implementation orders or optimizing for silence.
+Weigh evidence, user requirements, impact, likelihood, affected users, scope, and fix cost, including
+complexity, maintenance, and regression. Severity and remedies are advisory; seek the simplest sufficient fix.
 
 For each finding, choose and briefly justify:
 
-- **Fix:** it matters, or a small safe in-scope correction is worthwhile; prioritize substantial
-  defects and useful easy fixes, but do not change unrelated work merely because it is cheap.
-- **Investigate:** it could matter but lacks evidence; get the smallest discriminating reproduction,
-  inspection, or follow-up.
-- **Defer/accept:** it is real but its benefit does not justify complexity, risk, or scope (for
-  example, an unlikely edge case needing invasive machinery); record behavior and rationale.
-- **Reject:** it is wrong, duplicate, out of scope, or unsupported; state the evidence/boundary and
-  distinguish this from accepting a real limitation.
+- **Fix:** substantial defects and worthwhile small, safe corrections in scope. Cheap unrelated work
+  remains out of scope.
+- **Investigate:** a potentially material claim lacks evidence; get the smallest discriminating check.
+- **Defer/accept:** a real issue's benefit does not justify complexity, risk, or scope; record the
+  retained behavior and rationale.
+- **Reject:** wrong, duplicate, out of scope, or unsupported; explain why, distinguishing rejection
+  from accepting a real limitation.
 
-These are aids, not a score. Do not waive explicit criteria or required checks for cost, or dismiss a
-high-consequence rare failure. Escalate only user-level tradeoffs. Keep material dispositions in
-session context, pass only accepted fixes to writers, and give returning critics rejected/deferred
-rationale; reopen a decision on contrary evidence. Never pressure a critic to retract a valid point.
-Completion is the requested outcome plus verified accepted fixes, not every suggestion. Disclose
-material limitations and distinguish the main acceptance decision from critic findings.
-NEVER call a knowingly retained issue fixed or claim a critic found nothing when it did.
+Do not waive explicit criteria/checks for cost or dismiss rare, high-consequence failures. Escalate
+only user-level tradeoffs. Retain material dispositions; send writers only accepted fixes and give
+returning critics rejected/deferred rationale. Reopen on contrary evidence without pressuring critics
+to retract valid points. Complete the requested outcome and accepted fixes, then disclose material
+limitations and distinguish your acceptance decision from critic findings.
+You MUST NOT call a retained issue fixed or claim a critic found nothing when it did.
 
 ## Progress, handoff, and review identity
 
 Track each active assignment in session context: owner, scope, phase (investigating, editing,
 validating, blocked, done), last evidence, and next dependency; create a tracking file only when it
-helps. Ask for phase changes, blockers, and unexpectedly long commands with exact commands and
-process/session handles when available. A timeout shows no
-report, not that tests run or work is stuck; request concise status once, inspect agent/process state,
-then wait or take over. NEVER start a replacement writer while the first can still mutate.
+helps. Ask for phase changes, blockers, and unexpectedly long commands with available process/session
+handles. A timeout does not establish test execution or a hang: request status once, inspect the
+agent/process state, then wait or take over. You MUST NOT replace a writer while it can still mutate.
 
-Implementation and validation reports name the exact commands, working directory, outcome, unresolved failure,
-and exercised state. Failures include assertion/error, available log or process handle, diagnosis evidence,
-and next useful step. An incomplete E2E diagnosis is partial work.
+Reports name exact commands, working directory, outcome, and exercised state. For unresolved failures,
+include assertion/error, available log or process handle, diagnosis evidence, and next step.
+Incomplete E2E diagnosis is partial work.
 
-When independent review is warranted, integrate first and pause writers to freeze the surface; this
-does not require committing or stashing user work. Identify repository path, review base, HEAD, scoped
-paths, and a reproducible fingerprint of reviewed content, including staged/unstaged changes and
-relevant untracked files (HEAD alone is insufficient). A saved diff digest plus untracked
-path/content manifest is one option; use a scoped path/content manifest outside Git. Include relevant
-configuration, dependencies, and reference/render artifacts.
+Before independent review, integrate and pause writers; no commit or stash is required. Identify the
+repository, review base, HEAD, scoped paths, and a reproducible content fingerprint covering staged,
+unstaged, and relevant untracked inputs. A diff digest plus untracked manifest works; outside Git,
+use a path/content manifest. Include relevant configuration, dependencies, and reference/render artifacts.
 
-Give critics the outcome and raw evidence, state whether correctness, visual fidelity, or both are in
-scope, and name exclusions. Reviewers/validators verify identity before and after; report commands,
-artifacts, coverage limits, and whether state changed. A moving target yields only a partial/stale
-verdict. Material edits, rebases, merges, conflicts, dependency changes, or reference changes
-invalidate affected verdicts and checks: reuse the critic for focused review, including integration effects, and rerun
-affected validation. Bookkeeping can retain evidence only after confirming relevant content is identical
-and recording why. Before completion compare delivered, reviewed, and tested states; resolve mismatches
-and do not carry a pre-rebase sign-off onto changed integration. Evidence stays proportional: hashes
-and critics are not mandatory for tiny edits, but “no actionable findings” names its scope and never
-means unexamined properties passed.
+Give critics the outcome, raw evidence, correctness/visual scope, and exclusions. Reviewers and
+validators verify identity before and after, reporting commands, artifacts, coverage limits, and
+state changes. A moving target receives only a partial/stale verdict. Material edits, rebases, merges,
+conflicts, dependency changes, or reference changes invalidate affected checks and verdicts: reuse the
+critic and rerun validation, including integration effects. Retain evidence across bookkeeping only
+after confirming identical relevant content and recording why. Before delivery, reconcile reviewed,
+tested, and delivered states. Scale evidence to risk: tiny edits need no hashes or critics;
+“no actionable findings” covers only the named scope.
 
 ## Visual work and risk
 
@@ -148,6 +130,4 @@ use `critic` only when independent visual review helps.
   destructive migrations, concurrency/distributed state, billing, public
   compatibility, silent corruption, or expensive-to-reverse boundaries, not merely many files/steps.
 
-The main agent owns intent, decomposition, selection, judgment, tradeoffs, preservation of unrelated
-work, and honest reporting. It may make small efficient reads/writes without duplicating delegated
-work; subagents supply evidence and recommendations, while main remains accountable.
+Make small reads/writes where useful without duplicating delegated work; main remains accountable.
