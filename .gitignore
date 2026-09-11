@@ -28,6 +28,8 @@
 /tools/docs/.cache/
 /tools/docs/.webanvil/
 /tools/docs/coverage/
+/tools/poll/.webanvil/
+/tools/poll/coverage/
 
 # Ignore common generated or sensitive files even inside the allowed trees.
 **/.DS_Store

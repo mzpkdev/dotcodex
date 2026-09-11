@@ -1,9 +1,28 @@
 {
-  "name": "codex-poll",
+  "name": "@mzpk/poll",
+  "version": "0.1.0",
   "private": true,
-  "version": "1.0.0",
-  "description": "Run a command until its success condition is observed.",
+  "bin": {
+    "poll": "./dist/index.js"
+  },
+  "type": "module",
   "scripts": {
-    "test": "node --test test/poll.test.js"
+    "poll": "node src/index.ts",
+    "build": "wa build",
+    "test": "wa test",
+    "check": "wa check",
+    "lint": "wa lint",
+    "format": "wa format",
+    "typecheck": "wa typecheck"
+  },
+  "dependencies": {
+    "cmdore": "0.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "webanvil": "0.0.19"
+  },
+  "engines": {
+    "node": ">=24.12.0"
   }
 }

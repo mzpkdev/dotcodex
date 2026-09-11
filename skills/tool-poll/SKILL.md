@@ -31,4 +31,4 @@ CLI exits: `0` success, `124` overall timeout, `2` error, `130`/`143` cancellati
 Timeout is pending work, not success; follow the owning workflow's stopping rules.
 POSIX cleanup terminates the probe's process group and may add 200ms beyond the deadline.
 
-See [CLI details](../../tools/poll/README.md) for examples and validation commands.
+See [CLI details](../../tools/poll/README.md) for dependency setup, examples, and validation commands.

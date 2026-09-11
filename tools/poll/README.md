@@ -2,9 +2,22 @@
 
 `poll` runs a command immediately and repeats it until it exits `0`, reaches the overall deadline, or encounters an error. It prints one compact JSON result to standard output.
 
-Requires Node.js; no installation or build is needed. Examples run from `~/.codex`;
-from other directories, use `~/.codex/tools/poll/poll`. Run tests with
-`node --test tools/poll/test/poll.test.js`.
+Requires Node.js 24.12 or later. Examples run from `~/.codex`; from other directories,
+use `~/.codex/tools/poll/poll`. TypeScript source runs directly through the launcher;
+cmdore handles arguments and WebAnvil provides formatting, checks, tests, and builds.
+
+```sh
+cd ~/.codex/tools/poll
+PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci
+npm run format
+npm run check
+npm test
+npm run build
+```
+
+The environment flag skips WebAnvil's unused browser download. Run `./poll` for the source
+entry point or `node dist/index.js` for the build. `--dry-run` previews the command without
+starting it; place probe arguments after `--` so their flags remain literal.
 
 ```sh
 tools/poll/poll --timeout 5m --interval 5s --retry-exit 1,7,22 -- \
