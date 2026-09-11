@@ -11,6 +11,8 @@ Verify requested fidelity to a design or reference image. Scope review to the ch
 
 ## Compare the implementation
 
+Before distributing captures, validate one shared procedure against the expected viewport and UI state, and verify the page serves the intended source. Pause relevant writers before final captures. Share the proven procedure and give each capture owner separate output paths.
+
 Render the final implementation at each relevant supplied breakpoint. Wait for fonts/assets, establish UI state, and use consistent animation timing where needed. Record source state, route, viewport, and image path. Inspect a crop at useful resolution with enough context to judge placement; a reduced full-page image cannot establish fine color or asset fidelity.
 
 Compare background treatment, foreground/logo tone and asset variant, typography, dimensions, spacing, clipping, and placement. Check relevant responsive/motion behavior. Pixel samples or image diffs may clarify discrepancies; they are neither mandatory nor proof of fidelity across renderers.
