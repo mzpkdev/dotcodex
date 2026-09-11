@@ -80,6 +80,35 @@ describe('poll CLI', () => {
     });
   });
 
+  context('with an initial delay', () => {
+    it('waits before the first probe', async () => {
+      const result = await run(
+        '--timeout',
+        '2s',
+        '--initial-delay',
+        '100ms',
+        ...nodeProbe('process.exit(0)'),
+      );
+      expect(result.code).toBe(0);
+      expect(result.data.attempts).toBe(1);
+      expect(result.data.elapsedMs).toBeGreaterThanOrEqual(90);
+    });
+
+    it('expires without running a probe when the delay reaches the deadline', async () => {
+      const marker = join(await temporaryDirectory(), 'marker');
+      const result = await run(
+        '--timeout',
+        '80ms',
+        '--initial-delay',
+        '1s',
+        ...nodeProbe(`require('fs').writeFileSync(${JSON.stringify(marker)},'x')`),
+      );
+      expect(result.code).toBe(124);
+      expect(result.data).toMatchObject({ attempts: 0, lastProbe: null });
+      await expect(access(marker, constants.F_OK)).rejects.toThrow();
+    });
+  });
+
   context('when a probe cannot become successful', () => {
     it('stops on an unexpected exit code', async () => {
       const result = await run('--timeout', '2s', ...nodeProbe('process.exit(9)'));
@@ -149,6 +178,12 @@ describe('poll CLI', () => {
 
     it('rejects an out-of-range timeout', async () => {
       const result = await run('--timeout', '999999999h', ...nodeProbe('process.exit(0)'));
+      expect(result.code).toBe(2);
+      expect(result.data.reason).toBe('invalid_arguments');
+    });
+
+    it('rejects a zero initial delay', async () => {
+      const result = await run('--initial-delay', '0s', ...nodeProbe('process.exit(0)'));
       expect(result.code).toBe(2);
       expect(result.data.reason).toBe('invalid_arguments');
     });

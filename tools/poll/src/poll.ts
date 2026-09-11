@@ -3,6 +3,7 @@ import { performance } from 'node:perf_hooks';
 
 export const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
 export const DEFAULT_INTERVAL_MS = 5 * 1000;
+export const DEFAULT_INITIAL_DELAY_MS = 0;
 export const DEFAULT_ATTEMPT_TIMEOUT_MS = 10 * 1000;
 
 const TERM_GRACE_MS = 200;
@@ -13,6 +14,7 @@ const MAX_TIMER_MS = 2_147_483_647;
 export type PollOptions = {
   timeout: number;
   interval: number;
+  initialDelay: number;
   attemptTimeout: number;
   retryExit: Set<number>;
   command: string[];
@@ -221,6 +223,24 @@ const result = (
   ...extra,
 });
 
+const waitForDelay = (milliseconds: number, cancellation: Cancellation): Promise<boolean> =>
+  new Promise((resolve) => {
+    if (cancellation.signal) {
+      resolve(true);
+      return;
+    }
+    const timer = setTimeout(() => {
+      cancellation.unsubscribe(wake);
+      resolve(false);
+    }, milliseconds);
+    const wake = (): void => {
+      clearTimeout(timer);
+      cancellation.unsubscribe(wake);
+      resolve(true);
+    };
+    cancellation.subscribe(wake);
+  });
+
 export const poll = async (options: PollOptions): Promise<PollOutcome> => {
   const started = performance.now();
   const deadline = started + options.timeout;
@@ -232,6 +252,17 @@ export const poll = async (options: PollOptions): Promise<PollOutcome> => {
   let attempts = 0;
   let lastProbe: Probe | null = null;
   try {
+    if (options.initialDelay > 0) {
+      const remaining = Math.max(0, deadline - performance.now());
+      const cancelled = await waitForDelay(Math.min(options.initialDelay, remaining), cancellation);
+      if (cancelled || cancellation.signal) {
+        const signal = cancellation.signal ?? 'SIGTERM';
+        return {
+          code: signal === 'SIGINT' ? 130 : 143,
+          result: result('cancelled', started, attempts, lastProbe, { signal }),
+        };
+      }
+    }
     while (true) {
       const remaining = deadline - performance.now();
       if (remaining <= 0)
@@ -272,25 +303,16 @@ export const poll = async (options: PollOptions): Promise<PollOutcome> => {
         };
       }
       const remainingBeforeSleep = Math.max(0, deadline - performance.now());
-      const sleep = Math.min(options.interval, remainingBeforeSleep);
-      if (sleep <= 0) return { code: 124, result: result('timeout', started, attempts, lastProbe) };
-      await new Promise<void>((resolve) => {
-        const timer = setTimeout(resolve, sleep);
-        const wake = (): void => {
-          clearTimeout(timer);
-          resolve();
-        };
-        cancellation.subscribe(wake);
-        setTimeout(() => cancellation.unsubscribe(wake), sleep + 1).unref();
-      });
-      if (cancellation.signal) {
-        const signal = cancellation.signal;
+      const delay = Math.min(options.interval, remainingBeforeSleep);
+      if (delay <= 0) return { code: 124, result: result('timeout', started, attempts, lastProbe) };
+      if ((await waitForDelay(delay, cancellation)) || cancellation.signal) {
+        const signal = cancellation.signal ?? 'SIGTERM';
         return {
           code: signal === 'SIGINT' ? 130 : 143,
           result: result('cancelled', started, attempts, lastProbe, { signal }),
         };
       }
-      if (sleep === remainingBeforeSleep)
+      if (delay === remainingBeforeSleep)
         return { code: 124, result: result('timeout', started, attempts, lastProbe) };
     }
   } finally {

@@ -4,6 +4,7 @@ import { effect, execute, defineArgument, defineCommand, defineOption } from 'cm
 
 import {
   DEFAULT_ATTEMPT_TIMEOUT_MS,
+  DEFAULT_INITIAL_DELAY_MS,
   DEFAULT_INTERVAL_MS,
   DEFAULT_TIMEOUT_MS,
   duration,
@@ -44,6 +45,14 @@ const interval = defineOption({
   defaultValue: () => DEFAULT_INTERVAL_MS,
   coerce: (value) => duration(value, '--interval'),
 });
+const initialDelay = defineOption({
+  name: 'initial-delay',
+  hint: 'DURATION',
+  description: 'Wait before the first attempt (default: no delay).',
+  arity: 1,
+  defaultValue: () => DEFAULT_INITIAL_DELAY_MS,
+  coerce: (value) => duration(value, '--initial-delay'),
+});
 const attemptTimeout = defineOption({
   name: 'attempt-timeout',
   hint: 'DURATION',
@@ -69,7 +78,7 @@ const pollCommand = defineCommand({
   name: 'poll',
   description: 'Repeat a literal command until it succeeds or its deadline passes.',
   arguments: [command],
-  options: [timeout, interval, attemptTimeout, retry],
+  options: [timeout, interval, initialDelay, attemptTimeout, retry],
   examples: ['--timeout 5m --interval 5s -- curl -fsS http://localhost:3000/health'],
   run: async (argv) => {
     if (!effect.enabled) {
@@ -85,6 +94,7 @@ const pollCommand = defineCommand({
     const outcome = await poll({
       timeout: argv.timeout,
       interval: argv.interval,
+      initialDelay: argv['initial-delay'],
       attemptTimeout: argv['attempt-timeout'],
       retryExit: argv['retry-exit'],
       command: argv.command,
@@ -106,7 +116,13 @@ const requestsMetadata = (argv: string[]): boolean =>
 
 const hasOnlyOptionsBeforeBoundary = (argv: string[]): boolean => {
   const boundary = argv.indexOf('--');
-  const valueOptions = new Set(['--timeout', '--interval', '--attempt-timeout', '--retry-exit']);
+  const valueOptions = new Set([
+    '--timeout',
+    '--interval',
+    '--initial-delay',
+    '--attempt-timeout',
+    '--retry-exit',
+  ]);
   for (let index = 0; index < boundary; index += 1) {
     const token = argv[index];
     if (valueOptions.has(token)) {

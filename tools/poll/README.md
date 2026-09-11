@@ -19,6 +19,10 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci
 ./poll --timeout 5m --interval 5s --retry-exit 1,7,22 -- \
   curl --fail --silent http://localhost:3000/health
 
+# Respect a provider's minimum polling interval before the first request.
+./poll --timeout 10m --initial-delay 5m -- \
+  curl --fail --silent http://localhost:3000/status
+
 # Preview without running the command.
 ./poll --dry-run -- test -f /tmp/ready
 
@@ -34,14 +38,16 @@ poll [options] -- command [args...]
 ```
 
 Put the command and its arguments after `--`. Arguments are passed literally, without a shell.
-The first attempt runs immediately. Exit `0` succeeds; retryable exit codes run again after
-the interval. Any other failure, including an attempt timeout, stops polling.
+The first attempt runs immediately unless `--initial-delay` is set. The initial delay counts
+toward the overall timeout. Exit `0` succeeds; retryable exit codes run again after the interval.
+Any other failure, including an attempt timeout, stops polling.
 Use commands that are safe to repeat.
 
 | Option                         | Default | Behavior                                            |
 | ------------------------------ | ------- | --------------------------------------------------- |
 | `--timeout <duration>`         | `5m`    | Overall deadline.                                   |
 | `--interval <duration>`        | `5s`    | Delay between attempts.                             |
+| `--initial-delay <duration>`   |         | Delay before the first attempt.                     |
 | `--attempt-timeout <duration>` | `10s`   | Time limit for each attempt.                        |
 | `--retry-exit <codes>`         | `1`     | Comma-separated exit codes to retry, from 1 to 255. |
 | `--dry-run`                    |         | Preview without running the command.                |
