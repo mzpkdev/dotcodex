@@ -21,9 +21,14 @@ The `bucket` value is one of `pass`, `fail`, `pending`, `skipping`, or `cancel`.
 
 ```sh
 gh pr checks 123 --required
-gh pr checks 123 --watch --interval 10
-gh pr checks 123 --watch --fail-fast --interval 10
+gh pr checks 123 --watch --interval 300
+gh pr checks 123 --watch --fail-fast --interval 300
 ```
+
+Follow the active polling loop in `../SKILL.md`. A watch returning or timing out does not establish
+task completion: refresh the full relevant PR state and continue as needed. Prefer explicit poll
+rounds when watching checks would omit expected reviews or other asynchronous work. Empty check/run
+lists immediately after a push are pending when checks are expected, not evidence of success.
 
 ## Find GitHub Actions runs for a PR head
 
