@@ -23,6 +23,10 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci
 ./poll --timeout 10m --initial-delay 5m -- \
   curl --fail --silent http://localhost:3000/status
 
+# Show attempt and retry timing during a long wait. The final JSON remains on stdout.
+./poll --progress --timeout 15m --interval 5m --retry-exit 1,8 -- \
+  gh pr checks 93
+
 # Preview without running the command.
 ./poll --dry-run -- test -f /tmp/ready
 
@@ -50,6 +54,7 @@ Use commands that are safe to repeat.
 | `--initial-delay <duration>`   |         | Delay before the first attempt.                     |
 | `--attempt-timeout <duration>` | `10s`   | Time limit for each attempt.                        |
 | `--retry-exit <codes>`         | `1`     | Comma-separated exit codes to retry, from 1 to 255. |
+| `--progress`                   |         | Write JSON Lines progress records to stderr.        |
 | `--dry-run`                    |         | Preview without running the command.                |
 | `--help`                       |         | Show usage.                                         |
 
@@ -61,6 +66,11 @@ JSON includes `status`, `attempts`, `elapsedMs`, and `lastProbe`. The last probe
 its exit code, signal, stdout, and stderr. Output is capped at 8 KiB per stream, with
 `stdoutTruncated` and `stderrTruncated` flags. Errors can include `reason` and `message`;
 invalid arguments return `status: "error"`, `reason`, and `message`.
+
+With `--progress`, stderr receives one JSON Line before every probe and every delay. Attempt
+records include `attempt` and `remainingMs`. Waiting records include the next attempt, `delayMs`,
+and, after a retryable probe, its `lastOutcome` exit code and signal. Standard output still contains
+only the final result JSON, so scripts that parse it do not need to change.
 
 | Exit code     | Meaning                                |
 | ------------- | -------------------------------------- |

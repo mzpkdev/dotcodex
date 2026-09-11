@@ -9,7 +9,7 @@ import { afterEach, describe, describe as context, expect, it } from 'webanvil/t
 const execFile = promisify(execFileCallback);
 const poll = join(import.meta.dirname, '..', 'poll');
 const temporaryDirectories: string[] = [];
-type Run = { code: number; data: Record<string, unknown> };
+type Run = { code: number; data: Record<string, unknown>; stderr: string };
 
 const temporaryDirectory = async (): Promise<string> => {
   const directory = await mkdtemp(join(tmpdir(), 'poll-test-'));
@@ -20,10 +20,10 @@ const temporaryDirectory = async (): Promise<string> => {
 const run = async (...args: string[]): Promise<Run> => {
   try {
     const result = await execFile(poll, args, { encoding: 'utf8' });
-    return { code: 0, data: JSON.parse(result.stdout) };
+    return { code: 0, data: JSON.parse(result.stdout), stderr: result.stderr };
   } catch (error) {
-    const result = error as { code: number; stdout: string };
-    return { code: result.code, data: JSON.parse(result.stdout) };
+    const result = error as { code: number; stdout: string; stderr: string };
+    return { code: result.code, data: JSON.parse(result.stdout), stderr: result.stderr };
   }
 };
 
@@ -77,6 +77,37 @@ describe('poll CLI', () => {
       );
       expect(result.code).toBe(0);
       expect(result.data.attempts).toBe(2);
+    });
+
+    it('writes opt-in retry progress to stderr while keeping stdout as one final result', async () => {
+      const state = join(await temporaryDirectory(), 'state');
+      const source =
+        'const fs=require("fs");const p=process.argv[1];if(fs.existsSync(p))process.exit(0);fs.writeFileSync(p,"x");process.exit(1)';
+      const result = await run(
+        '--progress',
+        '--timeout',
+        '2s',
+        '--interval',
+        '20ms',
+        ...nodeProbe(source, state),
+      );
+      const updates = result.stderr
+        .trim()
+        .split('\n')
+        .map((line) => JSON.parse(line) as Record<string, unknown>);
+      expect(result.code).toBe(0);
+      expect(result.data).toMatchObject({ status: 'success', attempts: 2 });
+      expect(updates).toContainEqual(expect.objectContaining({ event: 'attempt', attempt: 1 }));
+      expect(updates).toContainEqual(
+        expect.objectContaining({
+          event: 'waiting',
+          phase: 'retry',
+          nextAttempt: 2,
+          delayMs: 20,
+          lastOutcome: { exitCode: 1, signal: null },
+        }),
+      );
+      expect(updates).toContainEqual(expect.objectContaining({ event: 'attempt', attempt: 2 }));
     });
   });
 

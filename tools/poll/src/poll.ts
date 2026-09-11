@@ -18,6 +18,7 @@ export type PollOptions = {
   attemptTimeout: number;
   retryExit: Set<number>;
   command: string[];
+  onProgress?: (progress: PollProgress) => void;
 };
 
 type BoundedOutput = { text: string; truncated: boolean };
@@ -51,6 +52,27 @@ export type PollResult = {
 };
 
 export type PollOutcome = { code: 0 | 2 | 124 | 130 | 143; result: PollResult };
+
+type PollAttemptProgress = {
+  event: 'attempt';
+  attempt: number;
+  elapsedMs: number;
+  remainingMs: number;
+};
+
+type PollWaitingProgress = {
+  event: 'waiting';
+  phase: 'initial' | 'retry';
+  nextAttempt: number;
+  delayMs: number;
+  elapsedMs: number;
+  lastOutcome?: Pick<Probe, 'exitCode' | 'signal'>;
+};
+
+export type PollProgress = PollAttemptProgress | PollWaitingProgress;
+type PollProgressUpdate =
+  | Omit<PollAttemptProgress, 'elapsedMs'>
+  | Omit<PollWaitingProgress, 'elapsedMs'>;
 
 export const duration = (value: string, label: string): number => {
   const match = /^(\d+)(ms|s|m|h)$/.exec(value);
@@ -244,6 +266,9 @@ const waitForDelay = (milliseconds: number, cancellation: Cancellation): Promise
 export const poll = async (options: PollOptions): Promise<PollOutcome> => {
   const started = performance.now();
   const deadline = started + options.timeout;
+  const progress = (update: PollProgressUpdate): void => {
+    options.onProgress?.({ ...update, elapsedMs: Math.round(performance.now() - started) });
+  };
   const cancellation = new Cancellation();
   const onSigint = (): void => cancellation.cancel('SIGINT');
   const onSigterm = (): void => cancellation.cancel('SIGTERM');
@@ -254,7 +279,10 @@ export const poll = async (options: PollOptions): Promise<PollOutcome> => {
   try {
     if (options.initialDelay > 0) {
       const remaining = Math.max(0, deadline - performance.now());
-      const cancelled = await waitForDelay(Math.min(options.initialDelay, remaining), cancellation);
+      const delay = Math.min(options.initialDelay, remaining);
+      const delayReachesDeadline = options.initialDelay >= remaining;
+      progress({ event: 'waiting', phase: 'initial', nextAttempt: 1, delayMs: Math.round(delay) });
+      const cancelled = await waitForDelay(delay, cancellation);
       if (cancelled || cancellation.signal) {
         const signal = cancellation.signal ?? 'SIGTERM';
         return {
@@ -262,11 +290,18 @@ export const poll = async (options: PollOptions): Promise<PollOutcome> => {
           result: result('cancelled', started, attempts, lastProbe, { signal }),
         };
       }
+      if (delayReachesDeadline)
+        return { code: 124, result: result('timeout', started, attempts, lastProbe) };
     }
     while (true) {
       const remaining = deadline - performance.now();
       if (remaining <= 0)
         return { code: 124, result: result('timeout', started, attempts, lastProbe) };
+      progress({
+        event: 'attempt',
+        attempt: attempts + 1,
+        remainingMs: Math.round(remaining),
+      });
       const attempt = await runAttempt(options, remaining, cancellation);
       attempts += 1;
       lastProbe = probe(attempt);
@@ -305,6 +340,13 @@ export const poll = async (options: PollOptions): Promise<PollOutcome> => {
       const remainingBeforeSleep = Math.max(0, deadline - performance.now());
       const delay = Math.min(options.interval, remainingBeforeSleep);
       if (delay <= 0) return { code: 124, result: result('timeout', started, attempts, lastProbe) };
+      progress({
+        event: 'waiting',
+        phase: 'retry',
+        nextAttempt: attempts + 1,
+        delayMs: Math.round(delay),
+        lastOutcome: { exitCode: lastProbe.exitCode, signal: lastProbe.signal },
+      });
       if ((await waitForDelay(delay, cancellation)) || cancellation.signal) {
         const signal = cancellation.signal ?? 'SIGTERM';
         return {

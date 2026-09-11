@@ -69,6 +69,11 @@ const retry = defineOption({
   defaultValue: () => new Set([1]),
   coerce: retryExit,
 });
+const progress = defineOption({
+  name: 'progress',
+  description: 'Write JSON Lines progress records to stderr.',
+  arity: 0,
+});
 
 const write = (value: unknown): void => {
   process.stdout.write(`${JSON.stringify(value)}\n`);
@@ -78,7 +83,7 @@ const pollCommand = defineCommand({
   name: 'poll',
   description: 'Repeat a literal command until it succeeds or its deadline passes.',
   arguments: [command],
-  options: [timeout, interval, initialDelay, attemptTimeout, retry],
+  options: [timeout, interval, initialDelay, attemptTimeout, retry, progress],
   examples: ['--timeout 5m --interval 5s -- curl -fsS http://localhost:3000/health'],
   run: async (argv) => {
     if (!effect.enabled) {
@@ -98,6 +103,9 @@ const pollCommand = defineCommand({
       attemptTimeout: argv['attempt-timeout'],
       retryExit: argv['retry-exit'],
       command: argv.command,
+      onProgress: argv.progress
+        ? (update) => process.stderr.write(`${JSON.stringify(update)}\n`)
+        : undefined,
     });
     if (outcome.code === 0) {
       write(outcome.result);
@@ -135,6 +143,7 @@ const hasOnlyOptionsBeforeBoundary = (argv: string[]): boolean => {
       token === '--version' ||
       token === '-v' ||
       token === '--dry-run' ||
+      token === '--progress' ||
       token === '--json' ||
       token === '--quiet' ||
       token === '--verbose' ||

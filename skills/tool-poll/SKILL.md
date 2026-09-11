@@ -26,6 +26,10 @@ Prefer interruptible five-minute tool waits, subject to active tool/session limi
 `write_stdin` call can request `yield_time_ms: 300000`. After a tool yield, await the same
 process; do not restart the CLI or reset the workflow deadline.
 
+For a long-running wait that needs visible state, add `--progress`. It writes compact JSON Lines
+to stderr before every attempt and delay, including retry exit/signal and the next delay, while
+stdout remains the single final result JSON.
+
 Read the final JSON (`status`, `attempts`, `elapsedMs`, `lastProbe`) and its bounded stdout/stderr.
 CLI exits: `0` success, `124` overall timeout, `2` error, `130`/`143` cancellation.
 Timeout is pending work, not success; follow the owning workflow's stopping rules.
