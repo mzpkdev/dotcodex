@@ -86,8 +86,8 @@ most eight action/evaluation cycles; stop after two consecutive cycles without m
 apparently transient external failure once; wait at most five minutes cumulatively for external
 state; and choose poll intervals appropriate to the provider and expected completion time. Do not
 consume the full budget after success or a clear terminal condition. Stop early on oscillation,
-such as reintroducing the prior cycle's fixed
-defect. A tool timeout does not authorize an indefinite watcher.
+such as reintroducing the prior cycle's fixed defect. A tool timeout does not authorize an
+indefinite watcher.
 
 Poll only when state should settle without user action, observation is authorized, exact resource and
 revision are known, and a deadline exists. Prefer bounded provider watches. Count passive bounded
@@ -97,9 +97,8 @@ cannot pass. Do not promise background monitoring after the session. At expiry, 
 report the exact pending state. Normally process unpredictable human activity from visible feedback
 and one final refresh; wait for feedback only within a user-supplied monitoring window.
 
-For command-based checks, use [tool-poll](../tool-poll/SKILL.md), which defaults to a five-minute
-timeout. Prefer interruptible five-minute tool waits within active tool/session limits; await
-the same process after a yield without resetting the workflow deadline.
+Apply [tool-poll](../tool-poll/SKILL.md) for command-based polling and waiting on its process.
+Keep the timeout within the remaining workflow budget and honor provider polling intervals.
 
 ## Finish honestly
 

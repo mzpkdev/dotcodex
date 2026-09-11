@@ -41,10 +41,10 @@ Space repeat polling rounds at least **300 seconds (five minutes)** apart and ho
 retry delays. Batch relevant reads and record the next poll time. Initial inspection, one immediate
 post-mutation read-back, and necessary pre-mutation freshness checks are not repeat polling; do not
 use them to bypass the interval while waiting for the same result. Prefer explicit poll rounds; any
-watch command must use an interval of at least 300 seconds. Prefer interruptible tool waits of
-five minutes (`yield_time_ms: 300000` for an empty `write_stdin` call), subject to the active tool
-and session limits, with no extra GitHub polls between rounds. Continue independent work and
-give progress updates as the session requires.
+watch command must use an interval of at least 300 seconds. Apply
+[tool-poll](../tool-poll/SKILL.md) for command-based polling and waiting on its process, retaining
+this interval and the workflow's completion rules. Make no extra GitHub polls between rounds.
+Continue independent work and give progress updates as the session requires.
 
 An individual wait/tool timeout or several unchanged polls is not a completion condition or evidence
 of a blocker. Resume waiting and polling; do not end with "still pending" or promise monitoring that
