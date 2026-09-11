@@ -16,6 +16,11 @@ You MAY fix or extend `~/.codex/tools/` without separate approval when the curre
 a concrete need. Keep changes focused, follow existing conventions, validate and retry the
 original operation. Update affected docs or skills, briefly report the change, and resume the task.
 
+# Polling commands
+
+Use [tool-poll](skills/tool-poll/SKILL.md) for bounded command polling. Prefer five-minute
+timeouts and interruptible background-terminal waits within active tool/session limits.
+
 <!-- nodeterm:get-linked-context:start -->
 # Reading linked nodeterm nodes (get-linked-context)
 

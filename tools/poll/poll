@@ -1,0 +1,280 @@
+#!/usr/bin/env node
+'use strict';
+
+const { performance } = require('node:perf_hooks');
+const { spawn } = require('node:child_process');
+
+const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
+const DEFAULT_INTERVAL_MS = 5 * 1000;
+const DEFAULT_ATTEMPT_TIMEOUT_MS = 10 * 1000;
+const TERM_GRACE_MS = 200;
+const NORMAL_DRAIN_GRACE_MS = 200;
+const OUTPUT_LIMIT_BYTES = 8 * 1024;
+const MAX_TIMER_MS = 2_147_483_647;
+
+function usage() {
+  return `Usage: poll [options] -- command [arguments...]
+
+Run a command immediately and repeat selected non-zero exits until it succeeds.
+
+Options:
+  --timeout DURATION          Overall deadline (default: 5m)
+  --interval DURATION         Delay between retries (default: 5s)
+  --attempt-timeout DURATION  Maximum time for one attempt (default: 10s)
+  --retry-exit CODES          Comma-separated retryable exit codes (default: 1)
+  -h, --help                  Show this help
+
+Durations accept positive integers with ms, s, m, or h (for example: 250ms, 5s, 5m).
+Use an explicit shell for compound commands: poll -- sh -c 'test -f ready && test -s result'.`;
+}
+
+function parseDuration(value, name) {
+  const match = /^(\d+)(ms|s|m|h)$/.exec(value || '');
+  if (!match) throw new Error(`${name} must be a positive duration such as 5s or 5m`);
+  const unit = { ms: 1, s: 1000, m: 60000, h: 3600000 }[match[2]];
+  const result = Number(match[1]) * unit;
+  if (!Number.isSafeInteger(result) || result <= 0 || result > MAX_TIMER_MS) {
+    throw new Error(`${name} is out of range`);
+  }
+  return result;
+}
+
+function parseRetryExit(value) {
+  if (!value || !/^\d+(,\d+)*$/.test(value)) {
+    throw new Error('--retry-exit must be comma-separated integer exit codes');
+  }
+  const codes = value.split(',').map(Number);
+  if (codes.some((code) => code < 1 || code > 255)) {
+    throw new Error('--retry-exit codes must be between 1 and 255');
+  }
+  return new Set(codes);
+}
+
+function parseArgs(argv) {
+  const options = {
+    timeoutMs: DEFAULT_TIMEOUT_MS,
+    intervalMs: DEFAULT_INTERVAL_MS,
+    attemptTimeoutMs: DEFAULT_ATTEMPT_TIMEOUT_MS,
+    retryExits: new Set([1]),
+  };
+  let index = 0;
+  while (index < argv.length && argv[index] !== '--') {
+    const arg = argv[index];
+    if (arg === '-h' || arg === '--help') return { help: true };
+    const [name, inline] = arg.split('=', 2);
+    if (!['--timeout', '--interval', '--attempt-timeout', '--retry-exit'].includes(name)) {
+      throw new Error(`unknown option: ${arg}`);
+    }
+    const value = inline === undefined ? argv[++index] : inline;
+    if (value === undefined || value.startsWith('--')) throw new Error(`${name} needs a value`);
+    if (name === '--timeout') options.timeoutMs = parseDuration(value, name);
+    if (name === '--interval') options.intervalMs = parseDuration(value, name);
+    if (name === '--attempt-timeout') options.attemptTimeoutMs = parseDuration(value, name);
+    if (name === '--retry-exit') options.retryExits = parseRetryExit(value);
+    index += 1;
+  }
+  if (argv[index] !== '--') throw new Error('command must follow --');
+  const command = argv.slice(index + 1);
+  if (command.length === 0) throw new Error('command must follow --');
+  return { ...options, command: command[0], args: command.slice(1) };
+}
+
+function clippedCollector(stream) {
+  let value = Buffer.alloc(0);
+  let truncated = false;
+  stream.on('data', (chunk) => {
+    if (value.length >= OUTPUT_LIMIT_BYTES) {
+      truncated = true;
+      return;
+    }
+    const remaining = OUTPUT_LIMIT_BYTES - value.length;
+    if (chunk.length > remaining) truncated = true;
+    value = Buffer.concat([value, chunk.subarray(0, remaining)]);
+  });
+  return () => ({ text: value.toString('utf8'), truncated });
+}
+
+function signalProcessGroup(child, signal) {
+  if (!child || !child.pid) return;
+  try {
+    if (process.platform !== 'win32') process.kill(-child.pid, signal);
+    else child.kill(signal);
+  } catch (error) {
+    if (error.code !== 'ESRCH') throw error;
+  }
+}
+
+function terminateProcessGroup(child) {
+  signalProcessGroup(child, 'SIGTERM');
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      try { signalProcessGroup(child, 'SIGKILL'); } catch { /* Process has already ended. */ }
+      resolve();
+    }, TERM_GRACE_MS);
+  });
+}
+
+function runAttempt(config, remainingMs, cancellation) {
+  return new Promise((resolve) => {
+    let child;
+    let settled = false;
+    let outcome = null;
+    let cleanup = null;
+    let exited = null;
+    let stdout;
+    let stderr;
+    let normalDrainTimer;
+    const setOutcome = (next) => { if (!outcome) outcome = next; };
+    const output = () => ({ stdout: stdout?.(), stderr: stderr?.() });
+    const settle = (patch = {}) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(deadlineTimer);
+      clearTimeout(attemptTimer);
+      clearTimeout(normalDrainTimer);
+      cancellation.unsubscribe(cancel);
+      child?.stdout?.destroy();
+      child?.stderr?.destroy();
+      resolve({ ...outcome, ...exited, ...output(), ...patch });
+    };
+    const stop = (next) => {
+      setOutcome(next);
+      if (!cleanup) cleanup = terminateProcessGroup(child).then(() => settle());
+    };
+    const cancel = () => stop({ kind: 'cancelled', cancelSignal: cancellation.signal });
+    const deadlineTimer = setTimeout(() => stop({ kind: 'deadline' }), remainingMs);
+    const attemptTimer = config.attemptTimeoutMs < remainingMs
+      ? setTimeout(() => stop({ kind: 'attempt_timeout' }), config.attemptTimeoutMs)
+      : null;
+    cancellation.subscribe(cancel);
+
+    try {
+      child = spawn(config.command, config.args, {
+        detached: process.platform !== 'win32',
+        shell: false,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch (error) {
+      settle({ kind: 'spawn_error', error });
+      return;
+    }
+    stdout = clippedCollector(child.stdout);
+    stderr = clippedCollector(child.stderr);
+    child.once('error', (error) => settle({ kind: 'spawn_error', error }));
+    child.once('exit', (exitCode, signal) => {
+      exited = { exitCode, signal };
+      if (outcome) return;
+      normalDrainTimer = setTimeout(() => stop({ kind: 'exit' }), NORMAL_DRAIN_GRACE_MS);
+    });
+    child.once('close', () => { if (!cleanup) settle(); });
+  });
+}
+
+function createCancellation() {
+  const subscribers = new Set();
+  const state = {
+    signal: null,
+    subscribe(fn) { subscribers.add(fn); },
+    unsubscribe(fn) { subscribers.delete(fn); },
+    cancel(signal) {
+      if (state.signal) return;
+      state.signal = signal;
+      for (const fn of subscribers) fn();
+    },
+  };
+  return state;
+}
+
+function probeSummary(result) {
+  if (!result) return null;
+  return {
+    exitCode: result.exitCode ?? null,
+    signal: result.signal ?? null,
+    stdout: result.stdout?.text ?? '',
+    stderr: result.stderr?.text ?? '',
+    stdoutTruncated: result.stdout?.truncated ?? false,
+    stderrTruncated: result.stderr?.truncated ?? false,
+  };
+}
+
+function result(status, started, attempts, lastProbe, extra = {}) {
+  return { status, attempts, elapsedMs: Math.round(performance.now() - started), lastProbe, ...extra };
+}
+
+async function poll(config) {
+  const started = performance.now();
+  const deadline = started + config.timeoutMs;
+  const cancellation = createCancellation();
+  const onSigint = () => cancellation.cancel('SIGINT');
+  const onSigterm = () => cancellation.cancel('SIGTERM');
+  process.once('SIGINT', onSigint);
+  process.once('SIGTERM', onSigterm);
+  let attempts = 0;
+  let lastProbe = null;
+  try {
+    while (true) {
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) return { code: 124, body: result('timeout', started, attempts, lastProbe) };
+      const attempt = await runAttempt(config, remaining, cancellation);
+      attempts += 1;
+      lastProbe = probeSummary(attempt);
+      if (attempt.kind === 'cancelled') {
+        const code = attempt.cancelSignal === 'SIGINT' ? 130 : 143;
+        return { code, body: result('cancelled', started, attempts, lastProbe, { signal: attempt.cancelSignal }) };
+      }
+      if (attempt.kind === 'deadline') return { code: 124, body: result('timeout', started, attempts, lastProbe) };
+      if (attempt.kind === 'attempt_timeout') {
+        return { code: 2, body: result('error', started, attempts, lastProbe, { reason: 'attempt_timeout' }) };
+      }
+      if (attempt.kind === 'spawn_error') {
+        return { code: 2, body: result('error', started, attempts, lastProbe, { reason: 'spawn_error', message: attempt.error.code || attempt.error.message }) };
+      }
+      if (attempt.exitCode === 0) return { code: 0, body: result('success', started, attempts, lastProbe) };
+      if (!config.retryExits.has(attempt.exitCode)) {
+        return { code: 2, body: result('error', started, attempts, lastProbe, { reason: 'unexpected_exit' }) };
+      }
+      const remainingBeforeSleep = Math.max(0, deadline - performance.now());
+      const sleepMs = Math.min(config.intervalMs, remainingBeforeSleep);
+      if (sleepMs <= 0) return { code: 124, body: result('timeout', started, attempts, lastProbe) };
+      await new Promise((resolve) => {
+        const timer = setTimeout(resolve, sleepMs);
+        const wake = () => { clearTimeout(timer); resolve(); };
+        cancellation.subscribe(wake);
+        setTimeout(() => cancellation.unsubscribe(wake), sleepMs + 1).unref();
+      });
+      if (cancellation.signal) {
+        const code = cancellation.signal === 'SIGINT' ? 130 : 143;
+        return { code, body: result('cancelled', started, attempts, lastProbe, { signal: cancellation.signal }) };
+      }
+      if (sleepMs === remainingBeforeSleep) {
+        return { code: 124, body: result('timeout', started, attempts, lastProbe) };
+      }
+    }
+  } finally {
+    process.removeListener('SIGINT', onSigint);
+    process.removeListener('SIGTERM', onSigterm);
+  }
+}
+
+async function main() {
+  let config;
+  try {
+    config = parseArgs(process.argv.slice(2));
+  } catch (error) {
+    process.stdout.write(`${JSON.stringify({ status: 'error', reason: 'invalid_arguments', message: error.message })}\n`);
+    process.exitCode = 2;
+    return;
+  }
+  if (config.help) {
+    process.stdout.write(`${usage()}\n`);
+    return;
+  }
+  const outcome = await poll(config);
+  process.stdout.write(`${JSON.stringify(outcome.body)}\n`);
+  process.exitCode = outcome.code;
+}
+
+main().catch((error) => {
+  process.stdout.write(`${JSON.stringify({ status: 'error', reason: 'internal_error', message: error.message })}\n`);
+  process.exitCode = 2;
+});

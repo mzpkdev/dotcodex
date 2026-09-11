@@ -23,6 +23,8 @@
 /tools/*
 !/tools/docs/
 !/tools/docs/**
+!/tools/poll/
+!/tools/poll/**
 /tools/docs/.cache/
 /tools/docs/.webanvil/
 /tools/docs/coverage/

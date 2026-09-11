@@ -1,0 +1,9 @@
+{
+  "name": "codex-poll",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Run a command until its success condition is observed.",
+  "scripts": {
+    "test": "node --test test/poll.test.js"
+  }
+}

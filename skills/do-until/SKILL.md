@@ -83,9 +83,10 @@ unresolved work, and treat reports as evidence, not a fixer's claimed independen
 
 Choose a budget proportional to risk, cost, and user wording; honor explicit limits. Otherwise use at
 most eight action/evaluation cycles; stop after two consecutive cycles without meaningful progress; retry the same
-apparently transient external failure once; wait at most fifteen minutes cumulatively for external
-state; and increase poll delays up to two minutes. Do not consume the full budget after success or a
-clear terminal condition. Stop early on oscillation, such as reintroducing the prior cycle's fixed
+apparently transient external failure once; wait at most five minutes cumulatively for external
+state; and choose poll intervals appropriate to the provider and expected completion time. Do not
+consume the full budget after success or a clear terminal condition. Stop early on oscillation,
+such as reintroducing the prior cycle's fixed
 defect. A tool timeout does not authorize an indefinite watcher.
 
 Poll only when state should settle without user action, observation is authorized, exact resource and
@@ -95,6 +96,10 @@ trigger the no-progress limit. Refresh mutable identity on every observation so 
 cannot pass. Do not promise background monitoring after the session. At expiry, refresh once and
 report the exact pending state. Normally process unpredictable human activity from visible feedback
 and one final refresh; wait for feedback only within a user-supplied monitoring window.
+
+For command-based checks, use [tool-poll](../tool-poll/SKILL.md), which defaults to a five-minute
+timeout. Prefer interruptible five-minute tool waits within active tool/session limits; await
+the same process after a yield without resetting the workflow deadline.
 
 ## Finish honestly
 
