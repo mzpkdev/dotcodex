@@ -20,14 +20,14 @@ gh pr checks 123 \
 
 ```sh
 gh pr checks 123 --required
-gh pr checks 123 --watch --interval 300
-gh pr checks 123 --watch --fail-fast --interval 300
+gh pr checks 123 --watch --interval 15
+gh pr checks 123 --watch --fail-fast --interval 15
 ```
 
-Follow the active polling loop in `../SKILL.md`. A watch returning or timing out does not establish
-completion: refresh the relevant PR state and continue as needed. Prefer explicit rounds when watching
-checks would omit expected reviews or other asynchronous work. Empty check/run lists just after a push
-are pending when checks are expected, not success.
+Use a watch for short-lived check state, honoring any longer provider retry delay. For longer waits,
+follow the adaptive readiness loop in `../SKILL.md`; explicit rounds are preferable when checks would
+omit expected reviews or other asynchronous work. A watch returning or timing out does not establish
+completion. Empty check/run lists just after a push are pending when checks are expected, not success.
 
 ## Find GitHub Actions runs for a PR head
 

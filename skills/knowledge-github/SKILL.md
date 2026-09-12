@@ -21,7 +21,7 @@ Read the relevant command/payload reference:
 
 Use `gh api` when no dedicated `gh pr` operation exists.
 
-## Confirm outcomes and stay active
+## Match completion to the request
 
 For an authorized PR creation or interaction, define the needed observable result and verify it in
 GitHub after the write. A successful command/API response confirms acceptance, not downstream
@@ -29,31 +29,31 @@ completion. Confirm the PR's intended head/base, a comment or review in its inte
 submitted state, or the changed thread/branch state. If a result is uncertain, read state before
 retrying to avoid duplicate comments, reviews, or PRs.
 
-Stay in the active turn while expected asynchronous work is pending: checks starting or finishing,
-requested automated reviews/replies, branch updates, or mergeability calculation. Poll the relevant
-state, act on new actionable results within authority, and repeat until the requested outcome is
-confirmed. Empty results, "no checks reported", missing logs, queued work, and unknown mergeability
-are pending when that data is expected; neither absence nor a successful API call proves completion.
-Establish expected checks/reviews from repository configuration and task context. Confirm when none
-apply; do not wait for hypothetical work or treat an empty response as green.
+Use one-shot completion for opening or updating a draft, posting a requested comment/reply/review,
+or reporting status, unless the user also asks to get the PR green/ready, manage feedback, or wait
+for a named result. For a draft, verify its draft state, intended head, base, and latest intended
+commit; inspect and report the current checks. Do not wait for checks, automated reviews, or
+mergeability to finish. For another one-shot interaction, read back the intended remote object and
+state; report relevant current status without turning it into monitoring.
 
-Space repeat polling rounds at least **300 seconds (five minutes)** apart and honor longer server
-retry delays. Batch relevant reads and record the next poll time. Initial inspection, one immediate
-post-mutation read-back, and necessary pre-mutation freshness checks are not repeat polling; do not
-use them to bypass the interval while waiting for the same result. Prefer explicit poll rounds; any
-watch command must use an interval of at least 300 seconds. Apply
-[tool-poll](../tool-poll/SKILL.md) for command-based polling and waiting on its process, retaining
-this interval and the workflow's completion rules. Make no extra GitHub polls between rounds.
-Continue independent work and give progress updates as the session requires.
+Use the active readiness loop only when the user asks to get a PR green/ready, manage feedback, fix
+CI, wait for a result, or otherwise complete asynchronous PR work. Establish expected checks/reviews
+from repository configuration and task context. Empty results, "no checks reported", missing logs,
+queued work, and unknown mergeability are pending when that data is expected; neither absence nor a
+successful API call proves completion. Confirm when no applicable work is expected.
 
-An individual wait/tool timeout or several unchanged polls is not a completion condition or evidence
-of a blocker. Resume waiting and polling; do not end with "still pending" or promise monitoring that
-was not started. Stop only for verified completion, an explicit user stop/deadline, a concrete blocker
-requiring unavailable access or a decision, or an actual runtime limit preventing continuation. In
-the latter cases, report the work as incomplete with its last verified state and exact remaining
-dependency. Ordinary pending work is not a blocker. Poll human approval/replies only when they are
-part of the requested outcome; do not turn a one-time status check or submitted-review task into
-indefinite monitoring.
+For the readiness loop, batch relevant reads and poll adaptively. Start with a short interval such as
+15–30 seconds; increase after unchanged or queued rounds (for example, 30 seconds, then 60, then
+120) and reset after a meaningful state change. Honor a longer provider retry delay. Prefer a provider
+watch when it covers the required result; otherwise use explicit rounds or
+[tool-poll](../tool-poll/SKILL.md). Bound waiting by the user’s deadline or the active runtime, continue
+independent work, and give progress updates as the session requires.
+
+An individual wait/tool timeout or several unchanged polls is not readiness completion or evidence of
+a blocker. Continue until verified completion, an explicit user stop/deadline, a concrete blocker
+requiring unavailable access or a decision, or an actual runtime limit. In the latter cases, report the
+last verified state and exact remaining dependency. Poll human approval/replies only when they are
+part of the requested outcome.
 
 ## Choose a mode
 
@@ -74,10 +74,10 @@ writable head repository and branch are verified.
 Use when the user asks to open a PR for their changes; identifies the PR as theirs/their team's and
 asks to manage, update, fix, address feedback, or get it green/ready; or explicitly asks to modify and
 push a verified writable PR branch.
-This authorizes routine end-to-end PR work: inspect state, feedback, merge state, and checks; make
-focused fixes; run relevant local validation; make sensible commits and push the existing branch;
-reply in the correct channel after pushing; rerun one clearly transient, side-effect-free Actions
-check when no code change is needed; and refresh until done or genuinely blocked.
+Within the requested outcome, this authorizes inspection, focused fixes, relevant local validation,
+sensible commits and pushes, authorized replies in the correct channel, and one clearly transient,
+side-effect-free Actions rerun when no code change is needed. Apply the selected completion condition:
+one-shot work ends after verified read-back; readiness work uses the loop below.
 
 Owner mode does not authorize merge/close, force-push, repository settings, secret exposure, or broad
 unrelated changes. Status/explanation requests are read-only. Task wording is the primary signal:
@@ -104,6 +104,8 @@ Before an owner-mode edit/push:
 Stage only current-fix files/hunks. Do not rewrite pushed history without separate authorization.
 
 ## Owner loop
+
+Use this loop for active readiness work, not a one-shot draft or interaction.
 
 ### Build the worklist
 
@@ -180,13 +182,17 @@ inspected; all findings are evidence-backed, current, and nonduplicate; head SHA
 refreshed before any requested submission; and any authorized submission is read back and confirmed
 on GitHub. It makes no GitHub mutation without explicit permission.
 
-Owner mode is complete when every actionable item is fixed, verified, and replied to, or declined
-with reason and replied to; relevant local validation ran; intended commits are pushed and match the
-PR head; applicable current-head checks pass or are established as irrelevant or superseded; expected
-automated reviews finished and their actionable feedback is handled; merge state is handled within
-authority; and a final refresh confirms these conditions. Blocked or posting-denied work is incomplete.
-Pending or missing expected results keep the polling loop active. Report the outcome, pushed changes,
-replies, validation, current checks, and blockers concisely rather than reciting comments or logs.
+One-shot owner work is complete when the requested remote change is read back and verified. A draft
+also needs its draft state, head, base, latest intended commit, and current check status reported.
+
+Readiness owner work is complete when every actionable item is fixed, verified, and replied to, or
+declined with reason and replied to; relevant local validation ran; intended commits are pushed and
+match the PR head; applicable current-head checks pass or are established as irrelevant or superseded;
+expected automated reviews finished and their actionable feedback is handled; merge state is handled
+within authority; and a final refresh confirms these conditions. Blocked or posting-denied work is
+incomplete. Pending or missing expected results keep the polling loop active. Report the outcome,
+pushed changes, replies, validation, current checks, and blockers concisely rather than reciting
+comments or logs.
 
 ## Avoid
 

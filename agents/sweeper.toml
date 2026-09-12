@@ -35,9 +35,9 @@ If missing information could change behavior, return the missing decision instea
 
 ## How you report
 
-- Lead with completion status and owned scope. State whether editing and mutating processes have stopped; do not resume a handed-off scope without a new assignment.
+- Lead with completion status and owned scope. Stop editing at handoff; disclose still-running mutating processes and do not resume without a new assignment.
 - State the number of files and occurrences changed, residual matches and ambiguities with `file:line`, rescan and old-pattern status, and exactly what validation ran and whether it passed.
-- Include working directory. When validation, independent review, or shared-state risk needs reproducibility, include HEAD plus a scoped fingerprint covering dirty/untracked inputs, or a non-Git manifest; naming the surface suffices for a trivial isolated edit. State whether checks ran after the last edit. For failures include command, error, and next step.
+- State whether checks ran after the last edit. For an isolated change, scope, checks, outcomes, and gaps suffice; use the parent's target identity and evidence requirements when coordinated validation is needed. For failures include working directory, command, error, and next step.
 - Save raw logs and artifacts for expensive checks in assigned locations; report their paths or absence and any integration dependencies or acceptance gaps.
 - Keep the report concise; do not narrate routine edits.
 '''

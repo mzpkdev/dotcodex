@@ -8,6 +8,17 @@ description: Main-agent orchestration for substantive coding work that benefits 
 Frame work, delegate where it helps, synthesize evidence, and own the integrated outcome.
 Work directly when coordination costs more than the task.
 
+## Default workflow
+
+For an isolated change, state the outcome and owned scope, make the change, run relevant checks,
+and hand off the result and remaining gaps. No ledger, fingerprint, formal freeze, or extra reviewer
+is needed solely because work was delegated. Keep follow-ups this short when their remaining risk
+allows it; a large original task does not make every correction consequential.
+
+Use the detailed evidence protocol when concurrent mutation, shared generated inputs, long-running
+checks, or high-consequence behavior makes validation identity or coordination material. A dirty
+working tree alone does not require it. Select review by behavioral risk, not change size alone.
+
 ## Scope and roles
 
 Apply only as main. Spawned agents complete their bounded assignments without loading this skill
@@ -45,13 +56,18 @@ for every correction.
 ## Brief and coordinate
 
 - Retain the requested outcome, constraints, decisions, and delivery condition, including authorized
-  shipping. Separate requirements, located evidence, hypotheses, and open questions.
+  shipping. Before delegation, resolve assumptions that materially affect public behavior,
+  compatibility, ownership, or acceptance from the user's instructions and located evidence.
+  State consequential assumptions still in use; return unresolved user-level choices to the user
+  while independent work continues. Do not introduce compatibility work without an established need.
 - Assign one writer per file surface or shared invariant, including main. Tell writers they share
   the filesystem and must preserve others' edits. Settle shared interfaces before parallel edits;
-  dispatch independent assignments together and serialize overlapping writes or shared build outputs.
-- Brief with objective, owned scope, dependencies, non-goals, acceptance conditions, validation duty,
-  and the handoff below. Name production conditions the checks need to exercise, rather than only
-  commands that happen to pass. Validate a shared procedure once before distributing repeated work.
+  dispatch independent assignments together. Assign ownership of shared build outputs and active
+  runs too; serialize conflicting commands and distinguish source review from live-run observation.
+- Brief with outcome, scope, acceptance conditions, and relevant dependencies or exclusions. Map
+  changed behavior to existing test suites and production conditions; assign any uncovered checks
+  to the integration owner. Validate a shared procedure once before distributing repeated work.
+  Pass only task-specific additions to the agent's role contract. Name tasks by subject, not role.
 - After a failed repair or contradicted diagnosis, get the smallest discriminating reproduction or
   trace before another implementation attempt. Keep unresolved diagnosis partial.
 - Reuse agents for related follow-ups. Use `send_message` for a running agent; `followup_task` assigns
@@ -64,23 +80,16 @@ for every correction.
 
 ## Handoff and acceptance
 
-Each handoff names the result and owned scope; whether editing and mutating processes have stopped;
-exact checks, working directory, outcomes, and exercised state; evidence paths for expensive checks;
-and remaining gaps or integration dependencies. A failed check includes the assertion/error,
-diagnosis evidence, and next step. Editorial handoffs also identify important guidance removed or
-consolidated and changed anchors. Keep reports concise; implementation completion is not acceptance.
+Keep ordinary handoffs to a short result, scope, exact checks and outcomes after the last edit, and
+remaining gaps. A handed-off writer stops editing; disclose any still-running mutating process.
+Implementation completion is not acceptance. Name one integration-validation owner, which may be main.
 
-Name one final-validation owner, which may be main. For shared or consequential work, track the
-relevant scope as **editing → frozen for review/integration → accepted**. Freeze only after relevant
-writers acknowledge stopping and their mutating processes finish. Run final checks and review on
-that scope; focused development checks may run earlier. Reopening the scope returns it to editing
-and invalidates affected evidence. A conversational label alone does not establish a freeze.
-
-Before independent review or integration validation involving shared, dirty, long-running, or
-high-consequence state, read [references/review-protocol.md](references/review-protocol.md) and pass
-its applicable evidence contract to agents. Tiny isolated edits need no hashes or extra reviewers.
-For design or screenshot acceptance, read [references/visual-review.md](references/visual-review.md).
-Code checks cannot establish visual fidelity.
+When the detailed protocol is warranted, read
+[references/review-protocol.md](references/review-protocol.md) and pass the applicable target,
+coordination, and evidence requirements in the brief. Maintain one current validation index for that
+scope rather than competing "final" reports. Reuse unaffected evidence after a correction.
+For visual fidelity or interaction acceptance, read
+[references/visual-review.md](references/visual-review.md). Code checks cannot establish visible behavior.
 
 ## Judge and deliver
 

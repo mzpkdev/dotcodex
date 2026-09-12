@@ -18,13 +18,12 @@ Defaults: five-minute overall timeout, five-second retry interval, ten-second at
 and retry exit code `1`. Override with `--timeout`, `--interval`, `--attempt-timeout`, and
 `--retry-exit 1,7`. Durations take positive integers with `ms`, `s`, `m`, or `h`.
 Choose retry codes from the command's actual semantics; other nonzero exits stop immediately.
-An attempt timeout is an error, not pending. Honor provider intervals, including GitHub's
-five-minute minimum. The overall deadline includes attempts and delays; a five-minute interval
-needs a longer authorized timeout to allow a second attempt.
+An attempt timeout is an error, not pending. Honor server retry delays and the owning workflow's
+polling cadence. The overall deadline includes attempts and delays; allow enough authorized time
+for the intended attempts. Use separate bounded rounds or a provider watch when cadence must adapt.
 
-Prefer interruptible five-minute tool waits, subject to active tool/session limits. An empty
-`write_stdin` call can request `yield_time_ms: 300000`. After a tool yield, await the same
-process; do not restart the CLI or reset the workflow deadline.
+Use interruptible tool waits within active session limits and communication needs. After a tool
+yield, await the same process; do not restart the CLI or reset the workflow deadline.
 
 For a long-running wait that needs visible state, add `--progress`. It writes compact JSON Lines
 to stderr before every attempt and delay, including retry exit/signal and the next delay, while
