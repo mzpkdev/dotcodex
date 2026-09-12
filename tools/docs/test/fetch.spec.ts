@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { http, HttpResponse } from 'msw';
@@ -13,7 +13,13 @@ import {
   expect,
   it,
 } from 'webanvil/test';
+import { vi } from 'vitest';
 import { loadDocument } from '../src/fetch.ts';
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const fs = await importOriginal<typeof import('node:fs/promises')>();
+  return { ...fs, mkdir: vi.fn(fs.mkdir), writeFile: vi.fn(fs.writeFile) };
+});
 
 const url = 'https://example.com/docs/llms.txt';
 const server = setupServer();
@@ -34,6 +40,7 @@ beforeEach(async () => {
 });
 afterEach(async () => {
   server.resetHandlers();
+  vi.restoreAllMocks();
   await rm(cacheDir, { recursive: true });
 });
 afterAll(() => server.close());
@@ -43,6 +50,32 @@ const markdown = (body: string, headers = {}) =>
   HttpResponse.text(body, { headers: { 'Content-Type': 'text/markdown', ...headers } });
 
 describe('loadDocument', () => {
+  context.each(['EACCES', 'EPERM', 'EROFS'])('with cache permission error %s', (code) => {
+    it.each([
+      ['creating the directory', mkdir],
+      ['writing the entry', writeFile],
+    ] as const)('returns fetched content when %s fails', async (_operation, persist) => {
+      server.use(http.get(url, () => markdown('# Guide\nBody')));
+      vi.mocked(persist).mockRejectedValueOnce(Object.assign(new Error('Cache denied'), { code }));
+      const warning = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+
+      const doc = await load();
+
+      expect(doc.sections[1]).toMatchObject({ title: 'Guide', content: 'Body' });
+      expect(requests).toHaveLength(1);
+      expect(await readdir(cacheDir)).toHaveLength(0);
+      expect(warning).toHaveBeenCalledOnce();
+      expect(warning.mock.calls[0][0]).toContain('DOCS_CACHE_DIR');
+    });
+  });
+
+  it('preserves unexpected cache failures', async () => {
+    server.use(http.get(url, () => markdown('# Guide')));
+    const error = Object.assign(new Error('Cache I/O error'), { code: 'EIO' });
+    vi.mocked(writeFile).mockRejectedValueOnce(error);
+    await expect(load()).rejects.toBe(error);
+  });
+
   context('with a fresh cached document', () => {
     beforeEach(async () => {
       server.use(
@@ -65,6 +98,19 @@ describe('loadDocument', () => {
     });
 
     context('when refresh is requested', () => {
+      it('returns revalidated content when the cache becomes read-only', async () => {
+        server.use(http.get(url, () => new HttpResponse(null, { status: 304 })));
+        vi.mocked(writeFile).mockRejectedValueOnce(
+          Object.assign(new Error('Cache is read-only'), { code: 'EROFS' }),
+        );
+        const warning = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+
+        expect((await load(true)).sections[1]).toMatchObject({ title: 'Guide', content: 'Body' });
+        expect(requests[0].headers.get('if-none-match')).toBe('"v1"');
+        expect(warning).toHaveBeenCalledOnce();
+        expect(await readdir(cacheDir)).toHaveLength(1);
+      });
+
       it('revalidates with the cached validators and retains unchanged content', async () => {
         server.use(http.get(url, () => new HttpResponse(null, { status: 304 })));
         const doc = await load(true);

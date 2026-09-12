@@ -51,3 +51,7 @@ Search does not crawl linked pages.
 
 Follow the returned continuation offset to read the next page. Set `DOCS_CACHE_DIR` to
 choose a cache directory; the default is `.cache/` in this tool's directory.
+If cache persistence fails with a permission or read-only filesystem error, the command returns
+the fetched document and warns on stderr unless `--quiet` is set; JSON output remains on stdout.
+Set `DOCS_CACHE_DIR` to a writable task-local directory to retain caching. Other cache-write errors,
+failed fetches, and invalid documents still fail the command.

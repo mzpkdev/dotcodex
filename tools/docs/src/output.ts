@@ -32,6 +32,10 @@ export const output = (data: unknown, text: string): void => {
   terminal.log(text);
 };
 
+export const warning = (message: string): void => {
+  if (!terminal.quiet) process.stderr.write(`${message}\n`);
+};
+
 export const dryRun = (command: string, details: Record<string, unknown>): void => {
   output(
     { command, dryRun: true, ...details },

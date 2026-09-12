@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createServer, type Server } from 'node:http';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { chmod, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -56,6 +56,7 @@ beforeEach(async () => {
   requests = 0;
 });
 afterEach(async () => {
+  await chmod(cacheDir, 0o700);
   await rm(cacheDir, { recursive: true, force: true });
 });
 afterAll(async () => {
@@ -65,6 +66,29 @@ afterAll(async () => {
 });
 
 describe('CLI', () => {
+  context.skipIf(process.platform === 'win32' || process.getuid?.() === 0)(
+    'with a read-only cache directory',
+    () => {
+      it.each([false, true])('returns valid JSON with quiet mode %s', async (quiet) => {
+        await chmod(cacheDir, 0o500);
+        const result = await run(
+          'search',
+          url,
+          'reactive class',
+          '--limit',
+          '1',
+          ...(quiet ? ['--quiet'] : []),
+        );
+        expect(result.code).toBe(0);
+        expect(result.stdout).toContain('classes');
+        expect(result.data).toBeDefined();
+        if (quiet) expect(result.stderr).toBe('');
+        else expect(result.stderr).toContain('DOCS_CACHE_DIR');
+        expect(requests).toBe(1);
+      });
+    },
+  );
+
   context('when listing a document tree', () => {
     it('returns a bounded page with a continuation offset', async () => {
       const result = await run('tree', url, '--limit', '2');

@@ -4,6 +4,7 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { parseDocument, type ParsedDocument } from './document.ts';
+import { warning } from './output.ts';
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const MAX_AGE = 60 * 60 * 1000;
@@ -159,7 +160,16 @@ export async function loadDocument(
       modified: response.headers.get('last-modified') ?? undefined,
     };
   }
-  await mkdir(directory, { recursive: true });
-  await saveCache(path, entry);
+  try {
+    await mkdir(directory, { recursive: true });
+    await saveCache(path, entry);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException)?.code;
+    if (!code || !['EACCES', 'EPERM', 'EROFS'].includes(code)) throw error;
+    warning(
+      `Warning: docs cache is not writable (${code}); returning fetched content without saving. ` +
+        'Set DOCS_CACHE_DIR to a writable directory to enable caching.',
+    );
+  }
   return parseDocument(entry.markdown, entry.url);
 }
