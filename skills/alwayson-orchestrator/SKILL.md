@@ -61,9 +61,11 @@ for every correction.
   State consequential assumptions still in use; return unresolved user-level choices to the user
   while independent work continues. Do not introduce compatibility work without an established need.
 - Assign one writer per file surface or shared invariant, including main. Tell writers they share
-  the filesystem and must preserve others' edits. Settle shared interfaces before parallel edits;
-  dispatch independent assignments together. Assign ownership of shared build outputs and active
-  runs too; serialize conflicting commands and distinguish source review from live-run observation.
+  the filesystem and must preserve others' edits. Before parallel edits, settle shared interfaces
+  and behavioral acceptance from agreed requirements, including relevant defaults, states, and
+  intentional differences. Pass those common conditions to each owner and dispatch independent
+  assignments together. Assign ownership of shared build outputs and active runs too; serialize
+  conflicting commands and distinguish source review from live-run observation.
 - Brief with outcome, scope, acceptance conditions, and relevant dependencies or exclusions. Map
   changed behavior to existing test suites and production conditions; assign any uncovered checks
   to the integration owner. Validate a shared procedure once before distributing repeated work.
@@ -83,6 +85,10 @@ for every correction.
 Keep ordinary handoffs to a short result, scope, exact checks and outcomes after the last edit, and
 remaining gaps. A handed-off writer stops editing; disclose any still-running mutating process.
 Implementation completion is not acceptance. Name one integration-validation owner, which may be main.
+
+For changes to a public package surface, validate through built or packed consumer imports when
+packaging can affect the result. Check affected declarations and runtime behavior from those
+artifacts; source imports alone do not establish consumer acceptance.
 
 When the detailed protocol is warranted, read
 [references/review-protocol.md](references/review-protocol.md) and pass the applicable target,
