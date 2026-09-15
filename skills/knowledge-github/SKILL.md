@@ -29,25 +29,33 @@ completion. Confirm the PR's intended head/base, a comment or review in its inte
 submitted state, or the changed thread/branch state. If a result is uncertain, read state before
 retrying to avoid duplicate comments, reviews, or PRs.
 
-Use one-shot completion for opening or updating a draft, posting a requested comment/reply/review,
-or reporting status, unless the user also asks to get the PR green/ready, manage feedback, or wait
-for a named result. For a draft, verify its draft state, intended head, base, and latest intended
-commit; inspect and report the current checks. Do not wait for checks, automated reviews, or
-mergeability to finish. For another one-shot interaction, read back the intended remote object and
-state; report relevant current status without turning it into monitoring.
+After opening or updating a PR, including a draft, enter the active readiness loop by default without
+waiting for another user prompt. Verify the intended draft state, head, base, and latest commit, then
+monitor expected checks and automated reviews and handle actionable results within owner authority.
+Preserve draft status unless the user asks to mark it ready. Creating the PR is an intermediate result;
+continue until the readiness completion conditions below are verified or a stated stopping condition
+applies. Waiting for human approval or replies requires that outcome to be part of the user's request.
 
-Use the active readiness loop only when the user asks to get a PR green/ready, manage feedback, fix
+Use one-shot completion when the user explicitly limits the task to creating/updating the PR without
+monitoring, or when posting a requested comment/reply/review or reporting status without a broader
+readiness task. Read back the intended remote object and state and report current checks as relevant.
+
+Also use the active readiness loop when the user asks to get a PR green/ready, manage feedback, fix
 CI, wait for a result, or otherwise complete asynchronous PR work. Establish expected checks/reviews
 from repository configuration and task context. Empty results, "no checks reported", missing logs,
 queued work, and unknown mergeability are pending when that data is expected; neither absence nor a
 successful API call proves completion. Confirm when no applicable work is expected.
 
-For the readiness loop, batch relevant reads and poll adaptively. Start with a short interval such as
-15–30 seconds; increase after unchanged or queued rounds (for example, 30 seconds, then 60, then
-120) and reset after a meaningful state change. Honor a longer provider retry delay. Prefer a provider
-watch when it covers the required result; otherwise use explicit rounds or
-[tool-poll](../tool-poll/SKILL.md). Bound waiting by the user’s deadline or the active runtime, continue
-independent work, and give progress updates as the session requires.
+For the readiness loop, batch relevant reads. After the initial inspection, default to a three-minute
+polling interval (180 seconds); back off after unchanged or queued rounds up to five minutes
+(300 seconds). Use shorter intervals when the user requests them or a concrete task need justifies
+faster feedback, such as a brief check expected to finish soon or a tight deadline. Return to the
+default cadence when that reason no longer applies. Honor a longer provider-required retry delay.
+Apply this cadence to provider watches, explicit rounds, and [tool-poll](../tool-poll/SKILL.md), setting
+the interval explicitly. Prefer a provider watch when it covers the required result; otherwise use
+explicit rounds or tool-poll. Bound waiting by the user’s deadline or the active runtime, continue
+independent work, and give progress updates as the session requires; progress updates do not require
+another GitHub request.
 
 An individual wait/tool timeout or several unchanged polls is not readiness completion or evidence of
 a blocker. Continue until verified completion, an explicit user stop/deadline, a concrete blocker

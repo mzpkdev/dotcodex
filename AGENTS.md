@@ -182,10 +182,16 @@ Verbs:
 - `rename --node <id> --title "New Name"` — rename any node (terminals, groups, stickies…).
   Renaming to the title the node ALREADY has is a no-op: nothing is typed into its agent
   session, and the reply says `already named`. Re-assert your own name as often as you like.
-- `color --node <id,id> --color C` — recolor nodes, frames, or stickies. C is one of: #0a84ff, #32d74b, #ffd60a, #ff453a, #bf5af2, #6ac4dc, #ff9f0a.
-- `write --node <id> --text "..."` / `close --node <id>` — type into / close a node.
+- `color --node <id,id> --color C` — recolor nodes, frames, or stickies. C is a palette NAME
+  or its hex: blue #0a84ff, green #32d74b, yellow #ffd60a, red #ff453a, purple #bf5af2, teal #6ac4dc, orange #ff9f0a, claude #d97757, codex #10a37f, gemini #4285f4, opencode #a78bfa, grok #64748b, copilot #8957e5, custom #888888. The agent names paint a node its CLI's own brand color.
+- `write --node <id> --text "..."` / `close --node <id,id>` — type into / close nodes.
+  `close` takes a COMMA LIST and asks about the whole list in ONE dialog, so close a finished
+  wave in a single call rather than one call per node. Every id must exist on the canvas: an
+  unknown one refuses the whole request and closes nothing.
   Desktop asks the user to confirm both. `denied by user` is FINAL; `no answer within 120s`
-  means nobody reached the dialog and is worth one retry when the user is back. Server Edition
+  means nobody reached the dialog and is worth one retry when the user is back. The user may
+  have turned the dialog off for a verb, in which case it simply applies — you cannot tell,
+  and nothing changes about how you call it. Server Edition
   is narrower: close requires a node this caller opened during the current server run, and all
   node-mutating verbs accept only current-run creations. Every other target receives a named
   ownership refusal before any partial mutation.
