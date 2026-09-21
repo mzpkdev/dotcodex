@@ -24,8 +24,8 @@ gh pr checks 123 --watch --interval 180
 gh pr checks 123 --watch --fail-fast --interval 180
 ```
 
-Use a watch when check state covers the required result, following the polling cadence and shorter
-interval exceptions in `../SKILL.md`. Use explicit rounds when cadence needs to adapt or checks would
+Use a watch when check state covers the required result, following the polling cadence in
+`../SKILL.md`. Use explicit rounds when cadence needs to adapt or checks would
 omit expected reviews or other asynchronous work. A watch returning or timing out does not establish
 completion. Empty check/run lists just after a push are pending when checks are expected, not success.
 

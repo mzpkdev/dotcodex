@@ -46,11 +46,10 @@ from repository configuration and task context. Empty results, "no checks report
 queued work, and unknown mergeability are pending when that data is expected; neither absence nor a
 successful API call proves completion. Confirm when no applicable work is expected.
 
-For the readiness loop, batch relevant reads. After the initial inspection, default to a three-minute
-polling interval (180 seconds); back off after unchanged or queued rounds up to five minutes
-(300 seconds). Use shorter intervals when the user requests them or a concrete task need justifies
-faster feedback, such as a brief check expected to finish soon or a tight deadline. Return to the
-default cadence when that reason no longer applies. Honor a longer provider-required retry delay.
+For the readiness loop, batch relevant reads. After the initial inspection, use a minimum polling
+interval of three minutes (180 seconds); back off after unchanged or queued rounds up to five minutes
+(300 seconds). Use a shorter interval only when the user explicitly requests faster polling.
+Honor a longer provider-required retry delay.
 Apply this cadence to provider watches, explicit rounds, and [tool-poll](../tool-poll/SKILL.md), setting
 the interval explicitly. Prefer a provider watch when it covers the required result; otherwise use
 explicit rounds or tool-poll. Bound waiting by the user’s deadline or the active runtime, continue
