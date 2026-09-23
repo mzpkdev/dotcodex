@@ -10,17 +10,18 @@ are literal; use `sh -c` for compound commands or `bash -o pipefail -c` for pipe
 Repeat observations within the task's authority; the CLI executes the entire command each attempt.
 
 ```sh
-/home/mzpk/.codex/tools/poll/poll --interval 5s --retry-exit 7,22 -- \
+/home/mzpk/.codex/tools/poll/poll --interval 3m --retry-exit 7,22 -- \
   curl -fsS http://localhost:3000/health
 ```
 
-Defaults: five-minute overall timeout, five-second retry interval, ten-second attempt timeout,
+CLI defaults: five-minute overall timeout, three-minute retry interval, ten-second attempt timeout,
 and retry exit code `1`. Override with `--timeout`, `--interval`, `--attempt-timeout`, and
 `--retry-exit 1,7`. Durations take positive integers with `ms`, `s`, `m`, or `h`.
 Choose retry codes from the command's actual semantics; other nonzero exits stop immediately.
-An attempt timeout is an error, not pending. Honor server retry delays and the owning workflow's
-polling cadence. The overall deadline includes attempts and delays; allow enough authorized time
-for the intended attempts. Use separate bounded rounds or a provider watch when cadence must adapt.
+An attempt timeout is an error, not pending. Pass `--interval 3m` explicitly for the user's fixed
+three-minute cadence; do not back off after unchanged results. Honor longer server-required retry
+delays. The overall deadline includes attempts and delays; allow enough authorized time for the
+intended attempts and follow the owning workflow's total waiting limit.
 
 Use interruptible tool waits within active session limits and communication needs. After a tool
 yield, await the same process; do not restart the CLI or reset the workflow deadline.

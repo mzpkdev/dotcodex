@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 
 export const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
-export const DEFAULT_INTERVAL_MS = 5 * 1000;
+export const DEFAULT_INTERVAL_MS = 3 * 60 * 1000;
 export const DEFAULT_INITIAL_DELAY_MS = 0;
 export const DEFAULT_ATTEMPT_TIMEOUT_MS = 10 * 1000;
 

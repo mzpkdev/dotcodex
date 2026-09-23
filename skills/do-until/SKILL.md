@@ -81,10 +81,15 @@ unresolved work, and treat reports as evidence, not a fixer's claimed independen
 
 ## Bounds and waiting
 
+For GitHub readiness work, `knowledge-github` governs polling cadence, waiting budgets, and readiness
+stopping conditions instead of the generic waiting rules below. The five-minute cumulative wait cap
+does not apply to that workflow. Honor explicit user limits and actual runtime limits.
+
 Choose a budget proportional to risk, cost, and user wording; honor explicit limits. Otherwise use at
 most eight action/evaluation cycles; stop after two consecutive cycles without meaningful progress; retry the same
 apparently transient external failure once; wait at most five minutes cumulatively for external
-state; and choose poll intervals appropriate to the provider and expected completion time. Do not
+state. After the initial inspection, poll every three minutes (180 seconds), without backoff;
+honor a longer provider-required retry delay. Do not
 consume the full budget after success or a clear terminal condition. Stop early on oscillation,
 such as reintroducing the prior cycle's fixed defect. A tool timeout does not authorize an
 indefinite watcher.

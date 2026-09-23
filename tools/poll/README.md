@@ -9,14 +9,14 @@ Requires Node.js 24.12+.
 ```sh
 cd ~/.codex/tools/poll
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci
-./poll --timeout 30s -- test -f /tmp/ready
+./poll --timeout 5m -- test -f /tmp/ready
 ```
 
 ## Examples
 
 ```sh
 # Wait for a local service.
-./poll --timeout 5m --interval 5s --retry-exit 1,7,22 -- \
+./poll --timeout 5m --interval 3m --retry-exit 1,7,22 -- \
   curl --fail --silent http://localhost:3000/health
 
 # Respect a provider's minimum polling interval before the first request.
@@ -24,14 +24,14 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci
   curl --fail --silent http://localhost:3000/status
 
 # Show attempt and retry timing during a long wait. The final JSON remains on stdout.
-./poll --progress --timeout 15m --interval 5m --retry-exit 1,8 -- \
+./poll --progress --timeout 15m --interval 3m --retry-exit 1,8 -- \
   gh pr checks 93
 
 # Preview without running the command.
 ./poll --dry-run -- test -f /tmp/ready
 
 # Use a shell explicitly for pipes or redirects.
-./poll --timeout 5m --interval 5s --retry-exit 1,22 -- \
+./poll --timeout 5m --interval 3m --retry-exit 1,22 -- \
   bash -o pipefail -c 'curl -fsS http://localhost:3000/status | grep -qx ready'
 ```
 
@@ -50,7 +50,7 @@ Use commands that are safe to repeat.
 | Option                         | Default | Behavior                                            |
 | ------------------------------ | ------- | --------------------------------------------------- |
 | `--timeout <duration>`         | `5m`    | Overall deadline.                                   |
-| `--interval <duration>`        | `5s`    | Delay between attempts.                             |
+| `--interval <duration>`        | `3m`    | Delay between attempts.                             |
 | `--initial-delay <duration>`   |         | Delay before the first attempt.                     |
 | `--attempt-timeout <duration>` | `10s`   | Time limit for each attempt.                        |
 | `--retry-exit <codes>`         | `1`     | Comma-separated exit codes to retry, from 1 to 255. |

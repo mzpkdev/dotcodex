@@ -40,7 +40,7 @@ const timeout = defineOption({
 const interval = defineOption({
   name: 'interval',
   hint: 'DURATION',
-  description: 'Delay between retries (default: 5s).',
+  description: 'Delay between retries (default: 3m).',
   arity: 1,
   defaultValue: () => DEFAULT_INTERVAL_MS,
   coerce: (value) => duration(value, '--interval'),
@@ -84,7 +84,7 @@ const pollCommand = defineCommand({
   description: 'Repeat a literal command until it succeeds or its deadline passes.',
   arguments: [command],
   options: [timeout, interval, initialDelay, attemptTimeout, retry, progress],
-  examples: ['--timeout 5m --interval 5s -- curl -fsS http://localhost:3000/health'],
+  examples: ['--timeout 5m --interval 3m -- curl -fsS http://localhost:3000/health'],
   run: async (argv) => {
     if (!effect.enabled) {
       write({

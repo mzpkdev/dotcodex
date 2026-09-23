@@ -5,19 +5,18 @@ description: Main-agent orchestration for substantive coding work that benefits 
 
 # Always-on orchestrator
 
-Frame work, delegate where it helps, synthesize evidence, and own the integrated outcome.
-Work directly when coordination costs more than the task.
+Own the requested outcome through validation and authorized delivery. Work directly when
+coordination costs more than the task.
 
 ## Default workflow
 
-For an isolated change, state the outcome and owned scope, make the change, run relevant checks,
-and hand off the result and remaining gaps. No ledger, fingerprint, formal freeze, or extra reviewer
-is needed solely because work was delegated. Keep follow-ups this short when their remaining risk
-allows it; a large original task does not make every correction consequential.
-
-Use the detailed evidence protocol when concurrent mutation, shared generated inputs, long-running
-checks, or high-consequence behavior makes validation identity or coordination material. A dirty
-working tree alone does not require it. Select review by behavioral risk, not change size alone.
+For an isolated change, establish outcome and scope, implement, run relevant checks, and report
+results and gaps. Delegation alone requires no ledger, fingerprint, formal freeze, or extra reviewer.
+Keep follow-ups proportional to their remaining risk, regardless of the original task's size.
+After a failed repair or contradicted diagnosis, obtain a discriminating reproduction or trace
+before another edit; keep unresolved diagnosis partial. For public package changes when packaging
+can affect the result, validate affected runtime behavior and declarations through built or packed
+consumer imports.
 
 ## Scope and roles
 
@@ -46,73 +45,25 @@ within their configured contracts; assign output locations that avoid other writ
 may authorize a named specialist within its trigger, input, permission, tool, and output contract.
 Spawn specialists only from main; source writes require both configuration and skill authorization.
 
-Choose roles by need; main may implement or validate directly. Use a critic for meaningful
-behavioral risk; for high-consequence boundaries, pair independent review with integration evidence.
-An architect needs an unresolved design question; a probe needs a useful independent measurement.
-If probe access or quota blocks it, validate directly or use writer evidence rather than escalating
-just to compress logs. Reviewer independence is separation from implementation, not a fresh session
-for every correction.
+## Ownership and completion
 
-## Brief and coordinate
+Brief agents with outcome, owned scope, acceptance conditions, dependencies, and authorized delivery.
+Assign one writer per file surface or shared invariant, including main; tell writers they share the
+filesystem and must preserve others' edits. Name one integration-validation owner, which may be main.
+Return unresolved user-level decisions while continuing independent work.
 
-- Retain the requested outcome, constraints, decisions, and delivery condition, including authorized
-  shipping. Before delegation, resolve assumptions that materially affect public behavior,
-  compatibility, ownership, or acceptance from the user's instructions and located evidence.
-  State consequential assumptions still in use; return unresolved user-level choices to the user
-  while independent work continues. Do not introduce compatibility work without an established need.
-- Assign one writer per file surface or shared invariant, including main. Tell writers they share
-  the filesystem and must preserve others' edits. Before parallel edits, settle shared interfaces
-  and behavioral acceptance from agreed requirements, including relevant defaults, states, and
-  intentional differences. Pass those common conditions to each owner and dispatch independent
-  assignments together. Assign ownership of shared build outputs and active runs too; serialize
-  conflicting commands and distinguish source review from live-run observation.
-- Brief with outcome, scope, acceptance conditions, and relevant dependencies or exclusions. Map
-  changed behavior to existing test suites and production conditions; assign any uncovered checks
-  to the integration owner. Validate a shared procedure once before distributing repeated work.
-  Pass only task-specific additions to the agent's role contract. Name tasks by subject, not role.
-- After a failed repair or contradicted diagnosis, get the smallest discriminating reproduction or
-  trace before another implementation attempt. Keep unresolved diagnosis partial.
-- Reuse agents for related follow-ups. Use `send_message` for a running agent; `followup_task` assigns
-  new work and restarts an idle or completed agent. A message alone does not restart one.
-- Track owner, scope, phase, evidence, and next dependency. Retain completed assignments and their
-  outcomes; use a small task-local ledger when session context becomes difficult to manage.
-- Request updates on phase changes, blockers, or unexpectedly long commands with process/session
-  handles. A quiet process or timeout does not prove a hang: inspect status once, then wait or take
-  over safely. You MUST NOT replace a writer while it can still mutate.
+Read every report and judge findings before assigning fixes. Implementation completion is not
+acceptance. Verify the integrated result and complete the requested delivery; report retained issues
+and validation limits honestly. Ordinary handoffs need only result, scope, checks after the last edit,
+and remaining gaps. A handed-off writer stops editing and discloses any still-running mutating process.
 
-## Handoff and acceptance
+## Load details when needed
 
-Keep ordinary handoffs to a short result, scope, exact checks and outcomes after the last edit, and
-remaining gaps. A handed-off writer stops editing; disclose any still-running mutating process.
-Implementation completion is not acceptance. Name one integration-validation owner, which may be main.
-
-For changes to a public package surface, validate through built or packed consumer imports when
-packaging can affect the result. Check affected declarations and runtime behavior from those
-artifacts; source imports alone do not establish consumer acceptance.
-
-When the detailed protocol is warranted, read
-[references/review-protocol.md](references/review-protocol.md) and pass the applicable target,
-coordination, and evidence requirements in the brief. Maintain one current validation index for that
-scope rather than competing "final" reports. Reuse unaffected evidence after a correction.
-For visual fidelity or interaction acceptance, read
-[references/visual-review.md](references/visual-review.md). Code checks cannot establish visible behavior.
-
-## Judge and deliver
-
-Read every report and adjudicate findings; do not forward claims as implementation orders or optimize
-for reviewer silence. Weigh evidence, realistic impact, likelihood, scope, and fix/regression cost.
-Briefly record material dispositions:
-
-- **Fix:** a defect or worthwhile safe correction within scope.
-- **Investigate:** a potentially material claim needs a discriminating check.
-- **Defer/accept:** a real limitation does not justify the remedy; retain the behavior and rationale.
-- **Reject:** wrong, duplicate, unsupported, or out of scope; explain the distinction from accepted risk.
-
-Do not waive explicit criteria for cost or dismiss rare, high-consequence failures. Send writers only
-accepted fixes; give returning critics rejected/deferred rationale, and reopen on contrary evidence.
-Escalate user-level tradeoffs without pressuring reviewers to retract valid findings.
-
-Reconcile tested, reviewed, and delivered states, including integration effects after corrections.
-Complete the requested delivery condition and disclose material limits. You MUST NOT call a retained
-issue fixed or claim a critic found nothing when it did. “No actionable findings” covers only the
-reviewed scope; main's acceptance remains a separate judgment.
+- Before delegating, selecting review for meaningful behavioral risk, or adjudicating findings, read
+  [delegation-workflow.md](references/delegation-workflow.md) for coordination, handoffs, and findings.
+- When concurrent mutation, shared generated inputs, long-running checks, or high-consequence behavior
+  makes validation identity or coordination material, read
+  [review-protocol.md](references/review-protocol.md). A dirty tree alone does not require it;
+  select review by behavioral risk, not change size alone.
+- For visual fidelity or interaction acceptance, read
+  [visual-review.md](references/visual-review.md). Code checks cannot establish visible behavior.
