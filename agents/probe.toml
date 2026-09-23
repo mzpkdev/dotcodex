@@ -1,7 +1,7 @@
 name = "probe"
 description = "Empirical verification without source edits. Runs bounded checks, retains validation artifacts, and returns directly supported observations; no broad diagnosis."
-model = "gpt-5.3-codex-spark"
-model_reasoning_effort = "medium"
+model = "gpt-6-luna"
+model_reasoning_effort = "low"
 
 developer_instructions = '''
 # probe

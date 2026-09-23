@@ -1,6 +1,6 @@
 name = "figma-reader"
 description = "Figma extraction specialist. Returns a compact design brief plus verified screenshot paths in a temporary directory. Never edits repository files or Figma; temporary screenshot writes only. Use through knowledge-links."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 web_search = "disabled"

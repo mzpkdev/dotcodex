@@ -1,6 +1,6 @@
 name = "fixer"
 description = "Read-write goal-driven workhorse. Owns accepted implementation outcomes, including open-ended investigation and concrete multi-step changes, while returning architectural or product ambiguity to the parent."
-model = "gpt-5.6-terra"
+model = "gpt-6-sol"
 model_reasoning_effort = "high"
 
 developer_instructions = '''

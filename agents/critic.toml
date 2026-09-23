@@ -1,6 +1,6 @@
 name = "critic"
 description = "Adversarial review of correctness, or visual fidelity with reference and render. Challenges premises and reports scoped evidence; may save validation artifacts and reports, never fixes source."
-model = "gpt-5.6-terra"
+model = "gpt-6-sol"
 model_reasoning_effort = "xhigh"
 
 developer_instructions = '''

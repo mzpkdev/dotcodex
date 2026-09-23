@@ -1,6 +1,6 @@
 name = "sweeper"
 description = "Read-write mechanical transformer. Applies an explicit repeatable change across a bounded surface, verifies coverage, and reports ambiguous exceptions — never designs or broadens the transformation."
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "medium"
 
 developer_instructions = '''
