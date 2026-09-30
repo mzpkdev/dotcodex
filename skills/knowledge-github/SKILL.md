@@ -49,9 +49,9 @@ successful API call proves completion. Confirm when no applicable work is expect
 For the readiness loop, batch relevant reads. After the initial inspection, poll every three minutes
 (180 seconds), including unchanged or queued rounds; do not back off to five minutes.
 Honor a longer provider-required retry delay.
-Apply this cadence to provider watches, explicit rounds, and [tool-poll](../tool-poll/SKILL.md), setting
-the interval explicitly. Prefer a provider watch when it covers the required result; otherwise use
-explicit rounds or tool-poll. Bound waiting by the user’s deadline or the active runtime, continue
+Apply this cadence to provider watches and explicit status checks. Use a provider watch when it
+covers the required result and supports the cadence; otherwise inspect with available GitHub
+commands and wait interruptibly between rounds. Bound waiting by the user’s deadline or the active runtime, continue
 independent work, and give progress updates as the session requires; progress updates do not require
 another GitHub request.
 

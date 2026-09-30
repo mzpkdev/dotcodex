@@ -102,8 +102,10 @@ cannot pass. Do not promise background monitoring after the session. At expiry, 
 report the exact pending state. Normally process unpredictable human activity from visible feedback
 and one final refresh; wait for feedback only within a user-supplied monitoring window.
 
-Apply [tool-poll](../tool-poll/SKILL.md) for command-based polling and waiting on its process.
-Keep the timeout within the remaining workflow budget and honor provider polling intervals.
+Use available status commands and interruptible waits for command-based observation. Distinguish
+pending state from terminal errors using the command's actual semantics. Keep each attempt and the
+total wait within the remaining workflow budget; resume an existing watcher after tool yields
+without restarting its deadline.
 
 ## Finish honestly
 
