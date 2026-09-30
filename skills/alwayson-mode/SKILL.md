@@ -11,14 +11,15 @@ govern; these preferences do not change Codex collaboration modes or permission 
 
 ## Load the selection
 
-ALWAYS read `/home/mzpk/.codex/modes.json` at startup and each user turn.
+Resolve the setup root as `../..` from the directory containing this `SKILL.md`, not from the
+process working directory. ALWAYS read `<setup-root>/modes.json` at startup and each user turn.
 Accept an array of unique `auto`/`ask` names, in any order. Either, both, or neither may be selected;
 order sets no precedence. An empty array or missing file selects no modes.
 
 Read each active prompt that is not already available in context:
 
-- `auto`: `/home/mzpk/.codex/modes/auto.md`
-- `ask`: `/home/mzpk/.codex/modes/ask.md`
+- `auto`: `<setup-root>/modes/auto.md`
+- `ask`: `<setup-root>/modes/ask.md`
 
 Apply only the current selection, even if a disabled prompt remains in context.
 If state is unreadable or invalid, report the problem and apply no modes until resolved.
@@ -46,7 +47,7 @@ Handle natural-language requests and invocations such as `$alwayson-mode enable 
 | Off | Save `[]` |
 | Status | Report the selection without changing it |
 
-Use only the known names and fixed paths. Clarify ambiguous add-versus-replace requests.
+Use only the known names and the paths resolved under this setup root. Clarify ambiguous add-versus-replace requests.
 Mode changes persist by default; task instructions such as "ask me before deploying" do not toggle modes.
 
 For a change, reread and validate the state, treating a missing file as `[]`. Apply the requested

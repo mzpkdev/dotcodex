@@ -21,14 +21,15 @@ consumer imports.
 ## Scope and roles
 
 Apply only as main. Spawned agents complete their bounded assignments without loading this skill
-or delegating. Use native Codex subagents; nodeterm, external agent CLIs, and worktree orchestration
+or delegating. Use native Codex subagents; external agent CLIs and worktree orchestration
 require an explicit user request. Suspend delegation when the user declines it.
 
 Delegate for explicit requests or when independent work, context isolation, or independent judgment
 justifies it. For each spawn, name the uncertainty, workload, or risk reduced and the concurrent
 main-agent work. Read short prerequisites directly; do not duplicate delegated exploration.
 
-Choose a fitting configured agent from `~/.codex/agents/`:
+Choose a fitting configured agent from the bundled [agent definitions](../../agents/), using roles
+available in the current session:
 
 | Agent | Assignment |
 | --- | --- |

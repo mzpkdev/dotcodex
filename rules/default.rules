@@ -1,7 +1,6 @@
-# Reusable viewing and documentation approvals.
+# Reusable read-only GitHub approvals.
 # Other commands use the configured sandbox and approval policy.
 prefix_rule(pattern=["gh", "repo", "view"], decision="allow")
 prefix_rule(pattern=["gh", "issue", "view"], decision="allow")
 prefix_rule(pattern=["gh", "run", "list"], decision="allow")
 prefix_rule(pattern=["gh", "run", "view"], decision="allow")
-prefix_rule(pattern=["node", "/home/mzpk/.codex/skills/.system/openai-docs/scripts/fetch-codex-manual.mjs"], decision="allow")
