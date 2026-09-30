@@ -1,6 +1,6 @@
 name = "scanner"
 description = "Read-only outward synthesis. Resolves a question from sources outside the repo (web, docs, upstream) and returns a trustworthy cited brief — never edits."
-model = "gpt-6-sol"
+model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 
 developer_instructions = '''
